@@ -1,27 +1,31 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
-import { useOntology } from "@/lib/ontology/context"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { useOntology } from "@/lib/ontology/context";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import { Copy } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export function ClassDetails() {
-  const { selectedClass, ontology } = useOntology()
+  const { selectedClass, ontology } = useOntology();
+  const { toast } = useToast();
 
   if (!selectedClass) {
     return (
       <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
         Select a class to view details
       </div>
-    )
+    );
   }
 
   const subclasses = Array.from(ontology?.classes.values() || []).filter((c) =>
-    c.superClasses.includes(selectedClass.id),
-  )
+    c.superClasses.includes(selectedClass.id)
+  );
 
   return (
     <ScrollArea className="h-full">
@@ -35,19 +39,50 @@ export function ClassDetails() {
               <Label htmlFor="class-id" className="text-xs">
                 ID
               </Label>
-              <Input id="class-id" value={selectedClass.id} readOnly className="font-mono text-xs" />
+              <div className="flex items-center gap-2">
+                <Input
+                  id="class-id"
+                  value={selectedClass.id}
+                  readOnly
+                  className="font-mono text-xs flex-1"
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8 shrink-0"
+                  onClick={() => {
+                    navigator.clipboard.writeText(selectedClass.id);
+                    toast({
+                      title: "Copied to clipboard",
+                      description: "The entity IRI has been copied.",
+                    });
+                  }}
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="class-name" className="text-xs">
                 Name
               </Label>
-              <Input id="class-name" value={selectedClass.name} readOnly className="text-xs" />
+              <Input
+                id="class-name"
+                value={selectedClass.name}
+                readOnly
+                className="text-xs"
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="class-label" className="text-xs">
                 Label
               </Label>
-              <Input id="class-label" value={selectedClass.label || ""} readOnly className="text-xs" />
+              <Input
+                id="class-label"
+                value={selectedClass.label || ""}
+                readOnly
+                className="text-xs"
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="class-description" className="text-xs">
@@ -74,7 +109,11 @@ export function ClassDetails() {
               <div className="flex flex-wrap gap-2">
                 {selectedClass.superClasses.length > 0 ? (
                   selectedClass.superClasses.map((superClass) => (
-                    <Badge key={superClass} variant="secondary" className="text-xs font-mono">
+                    <Badge
+                      key={superClass}
+                      variant="secondary"
+                      className="text-xs font-mono"
+                    >
                       {superClass}
                     </Badge>
                   ))
@@ -84,11 +123,17 @@ export function ClassDetails() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label className="text-xs">Subclasses ({subclasses.length})</Label>
+              <Label className="text-xs">
+                Subclasses ({subclasses.length})
+              </Label>
               <div className="flex flex-wrap gap-2">
                 {subclasses.length > 0 ? (
                   subclasses.map((subClass) => (
-                    <Badge key={subClass.id} variant="outline" className="text-xs font-mono">
+                    <Badge
+                      key={subClass.id}
+                      variant="outline"
+                      className="text-xs font-mono"
+                    >
                       {subClass.name}
                     </Badge>
                   ))
@@ -110,7 +155,11 @@ export function ClassDetails() {
               <div className="flex flex-wrap gap-2">
                 {selectedClass.disjointWith.length > 0 ? (
                   selectedClass.disjointWith.map((disjoint) => (
-                    <Badge key={disjoint} variant="destructive" className="text-xs font-mono">
+                    <Badge
+                      key={disjoint}
+                      variant="destructive"
+                      className="text-xs font-mono"
+                    >
                       {disjoint}
                     </Badge>
                   ))
@@ -120,7 +169,9 @@ export function ClassDetails() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label className="text-xs">Properties ({selectedClass.properties.length})</Label>
+              <Label className="text-xs">
+                Properties ({selectedClass.properties.length})
+              </Label>
               <div className="flex flex-wrap gap-2">
                 {selectedClass.properties.length > 0 ? (
                   selectedClass.properties.map((prop) => (
@@ -145,17 +196,23 @@ export function ClassDetails() {
               {selectedClass.annotations.length > 0 ? (
                 selectedClass.annotations.map((annotation, index) => (
                   <div key={index} className="flex gap-2 text-xs">
-                    <span className="font-mono text-primary">{annotation.property}:</span>
-                    <span className="text-muted-foreground">{annotation.value}</span>
+                    <span className="font-mono text-primary">
+                      {annotation.property}:
+                    </span>
+                    <span className="text-muted-foreground">
+                      {annotation.value}
+                    </span>
                   </div>
                 ))
               ) : (
-                <span className="text-xs text-muted-foreground">No annotations</span>
+                <span className="text-xs text-muted-foreground">
+                  No annotations
+                </span>
               )}
             </div>
           </CardContent>
         </Card>
       </div>
     </ScrollArea>
-  )
+  );
 }

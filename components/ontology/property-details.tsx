@@ -1,24 +1,34 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
-import { Checkbox } from "@/components/ui/checkbox"
-import { useOntology } from "@/lib/ontology/context"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useOntology } from "@/lib/ontology/context";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Copy } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export function PropertyDetails() {
-  const { selectedProperty } = useOntology()
+  const { selectedProperty } = useOntology();
+  const { toast } = useToast();
 
   if (!selectedProperty) {
     return (
       <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
         Select a property to view details
       </div>
-    )
+    );
   }
 
   const characteristics = [
@@ -29,7 +39,7 @@ export function PropertyDetails() {
     { id: "Asymmetric", label: "Asymmetric" },
     { id: "Reflexive", label: "Reflexive" },
     { id: "Irreflexive", label: "Irreflexive" },
-  ]
+  ];
 
   return (
     <ScrollArea className="h-full">
@@ -43,19 +53,50 @@ export function PropertyDetails() {
               <Label htmlFor="property-id" className="text-xs">
                 ID
               </Label>
-              <Input id="property-id" value={selectedProperty.id} readOnly className="font-mono text-xs" />
+              <div className="flex items-center gap-2">
+                <Input
+                  id="property-id"
+                  value={selectedProperty.id}
+                  readOnly
+                  className="font-mono text-xs flex-1"
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8 shrink-0"
+                  onClick={() => {
+                    navigator.clipboard.writeText(selectedProperty.id);
+                    toast({
+                      title: "Copied to clipboard",
+                      description: "The entity IRI has been copied.",
+                    });
+                  }}
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="property-name" className="text-xs">
                 Name
               </Label>
-              <Input id="property-name" value={selectedProperty.name} readOnly className="text-xs" />
+              <Input
+                id="property-name"
+                value={selectedProperty.name}
+                readOnly
+                className="text-xs"
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="property-label" className="text-xs">
                 Label
               </Label>
-              <Input id="property-label" value={selectedProperty.label || ""} readOnly className="text-xs" />
+              <Input
+                id="property-label"
+                value={selectedProperty.label || ""}
+                readOnly
+                className="text-xs"
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="property-type" className="text-xs">
@@ -103,7 +144,11 @@ export function PropertyDetails() {
               <div className="flex flex-wrap gap-2">
                 {selectedProperty.domain.length > 0 ? (
                   selectedProperty.domain.map((domain) => (
-                    <Badge key={domain} variant="secondary" className="text-xs font-mono">
+                    <Badge
+                      key={domain}
+                      variant="secondary"
+                      className="text-xs font-mono"
+                    >
                       {domain}
                     </Badge>
                   ))
@@ -117,7 +162,11 @@ export function PropertyDetails() {
               <div className="flex flex-wrap gap-2">
                 {selectedProperty.range.length > 0 ? (
                   selectedProperty.range.map((range) => (
-                    <Badge key={range} variant="secondary" className="text-xs font-mono">
+                    <Badge
+                      key={range}
+                      variant="secondary"
+                      className="text-xs font-mono"
+                    >
                       {range}
                     </Badge>
                   ))
@@ -137,12 +186,20 @@ export function PropertyDetails() {
             <CardContent>
               <div className="space-y-3">
                 {characteristics.map((characteristic) => (
-                  <div key={characteristic.id} className="flex items-center space-x-2">
+                  <div
+                    key={characteristic.id}
+                    className="flex items-center space-x-2"
+                  >
                     <Checkbox
                       id={characteristic.id}
-                      checked={selectedProperty.characteristics.includes(characteristic.id as any)}
+                      checked={selectedProperty.characteristics.includes(
+                        characteristic.id as any
+                      )}
                     />
-                    <Label htmlFor={characteristic.id} className="text-xs font-normal cursor-pointer">
+                    <Label
+                      htmlFor={characteristic.id}
+                      className="text-xs font-normal cursor-pointer"
+                    >
                       {characteristic.label}
                     </Label>
                   </div>
@@ -162,7 +219,11 @@ export function PropertyDetails() {
               <div className="flex flex-wrap gap-2">
                 {selectedProperty.superProperties.length > 0 ? (
                   selectedProperty.superProperties.map((superProp) => (
-                    <Badge key={superProp} variant="secondary" className="text-xs font-mono">
+                    <Badge
+                      key={superProp}
+                      variant="secondary"
+                      className="text-xs font-mono"
+                    >
                       {superProp}
                     </Badge>
                   ))
@@ -191,17 +252,23 @@ export function PropertyDetails() {
               {selectedProperty.annotations.length > 0 ? (
                 selectedProperty.annotations.map((annotation, index) => (
                   <div key={index} className="flex gap-2 text-xs">
-                    <span className="font-mono text-primary">{annotation.property}:</span>
-                    <span className="text-muted-foreground">{annotation.value}</span>
+                    <span className="font-mono text-primary">
+                      {annotation.property}:
+                    </span>
+                    <span className="text-muted-foreground">
+                      {annotation.value}
+                    </span>
                   </div>
                 ))
               ) : (
-                <span className="text-xs text-muted-foreground">No annotations</span>
+                <span className="text-xs text-muted-foreground">
+                  No annotations
+                </span>
               )}
             </div>
           </CardContent>
         </Card>
       </div>
     </ScrollArea>
-  )
+  );
 }
