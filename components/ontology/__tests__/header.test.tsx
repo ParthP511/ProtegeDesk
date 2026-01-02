@@ -1,18 +1,17 @@
 import { render, screen } from '@testing-library/react'
-import { describe, it, expect, vi } from 'vitest'
 import { OntologyHeader } from '../header'
 
 // Mock dialog components to avoid testing their internal behavior.
 // We only care that they render trigger buttons.
-vi.mock('../new-entity-dialog', () => ({
+jest.mock('../new-entity-dialog', () => ({
   NewEntityDialog: () => <button>New Entity</button>,
 }))
 
-vi.mock('../reasoner-dialog', () => ({
+jest.mock('../reasoner-dialog', () => ({
   ReasonerDialog: () => <button>Reasoner</button>,
 }))
 
-vi.mock('../import-export-dialog', () => ({
+jest.mock('../import-export-dialog', () => ({
   ImportExportDialog: () => <button>Import / Export</button>,
 }))
 
