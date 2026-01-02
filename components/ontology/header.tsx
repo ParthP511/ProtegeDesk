@@ -1,10 +1,12 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { Save } from 'lucide-react'
 import { ImportExportDialog } from './import-export-dialog'
 import { NewEntityDialog } from './new-entity-dialog'
 import { ReasonerDialog } from './reasoner-dialog'
+import packageJson from '@/package.json'
 
 export function OntologyHeader() {
   return (
@@ -15,6 +17,9 @@ export function OntologyHeader() {
             Protege<span className="text-primary">TS</span>
           </h1>
           <span className="text-muted-foreground text-sm">Ontology Editor</span>
+          <Badge variant="secondary" className="font-mono text-xs">
+            v{packageJson.version}
+          </Badge>
           <Button
             variant="ghost"
             size="sm"
