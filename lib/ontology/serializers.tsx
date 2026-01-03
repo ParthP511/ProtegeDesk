@@ -162,7 +162,7 @@ export function parseOWLXML(content: string): Ontology {
 
   // Parse classes
   const classNodes = xmlDoc.querySelectorAll("Class")
-  classNodes.forEach((node) => {
+  classNodes.forEach((node):void => {
     const id = node.getAttribute("rdf:about") || node.getAttribute("about") || ""
     if (!id) return
 
@@ -269,7 +269,7 @@ export function parseTurtle(content: string): Ontology {
   let currentSubject: string | null = null
   let currentType: string | null = null
 
-  lines.forEach((line) => {
+  lines.forEach((line):void => {
     line = line.trim()
     if (line.startsWith("@prefix") || line.startsWith("#") || !line) return
 
@@ -347,7 +347,7 @@ export function parseJSONLD(content: string): Ontology {
 
   const graph = data["@graph"] || [data]
 
-  graph.forEach((item: any) => {
+  graph.forEach((item: ynknown) => {
     const type = item["@type"]
     const id = item["@id"]
 
