@@ -49,3 +49,9 @@ export const EDGE_DASH_SIZE = 5
 ========================= */
 export const FIT_VIEW_PADDING = 100
 export const MAX_FIT_ZOOM = 2
+
+/* =========================
+   Toast Limit and Delay
+========================= */
+export const TOAST_LIMIT = 1
+export const TOAST_REMOVE_DELAY = 1000000
