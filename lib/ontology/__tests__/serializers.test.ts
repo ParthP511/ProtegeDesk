@@ -900,11 +900,19 @@ describe('Ontology Serializers', () => {
       expect(ontology.individuals.size).toBe(4) // MyMargherita, MozzarellaTopping1, MyPepperoni, MyVeggie
 
       // Verify specific individuals
-      expect(ontology.individuals.has('http://www.co-ode.org/ontologies/pizza/pizza.owl#MyMargherita')).toBe(true)
-      expect(ontology.individuals.has('http://www.co-ode.org/ontologies/pizza/pizza.owl#MyPepperoni')).toBe(true)
-      expect(ontology.individuals.has('http://www.co-ode.org/ontologies/pizza/pizza.owl#MyVeggie')).toBe(true)
+      expect(
+        ontology.individuals.has('http://www.co-ode.org/ontologies/pizza/pizza.owl#MyMargherita')
+      ).toBe(true)
+      expect(
+        ontology.individuals.has('http://www.co-ode.org/ontologies/pizza/pizza.owl#MyPepperoni')
+      ).toBe(true)
+      expect(
+        ontology.individuals.has('http://www.co-ode.org/ontologies/pizza/pizza.owl#MyVeggie')
+      ).toBe(true)
 
-      const margherita = ontology.individuals.get('http://www.co-ode.org/ontologies/pizza/pizza.owl#MyMargherita')
+      const margherita = ontology.individuals.get(
+        'http://www.co-ode.org/ontologies/pizza/pizza.owl#MyMargherita'
+      )
       expect(margherita?.label).toBe('My Margherita Pizza')
       expect(margherita?.types).toContain('http://www.co-ode.org/ontologies/pizza/pizza.owl#Pizza')
     })

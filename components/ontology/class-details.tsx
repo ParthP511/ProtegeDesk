@@ -51,16 +51,14 @@ const ClassElementItem: React.FC<ClassElementItemProps> = React.memo(
         selected={isSelected}
         className={cn(
           'cursor-pointer rounded-sm',
-          isSelected
-            ? 'bg-primary text-primary-foreground'
-            : 'hover:bg-muted/80'
+          isSelected ? 'bg-primary text-primary-foreground' : 'hover:bg-muted/80'
         )}
         onClick={onClick}
         onDoubleClick={onDoubleClick}
         role="option"
         aria-selected={isSelected}
         tabIndex={0}
-        onKeyDown={(e) => {
+        onKeyDown={e => {
           if (e.key === 'Enter' || e.key === ' ') {
             onClick?.()
           }
@@ -68,18 +66,11 @@ const ClassElementItem: React.FC<ClassElementItemProps> = React.memo(
       >
         <ItemMedia variant="indicator" className={indicatorColor} />
         <ItemContent>
-          <ItemTitle
-            className={cn(
-              'font-mono text-sm',
-              isSelected && 'text-primary-foreground'
-            )}
-          >
+          <ItemTitle className={cn('font-mono text-sm', isSelected && 'text-primary-foreground')}>
             {label}
           </ItemTitle>
           {description && (
-            <ItemDescription
-              className={cn(isSelected && 'text-primary-foreground/80')}
-            >
+            <ItemDescription className={cn(isSelected && 'text-primary-foreground/80')}>
               {description}
             </ItemDescription>
           )}
@@ -96,29 +87,25 @@ interface SectionHeaderProps {
   count?: number
 }
 
-const SectionHeader: React.FC<SectionHeaderProps> = React.memo(
-  ({ title, onAdd, count }) => (
-    <div className="flex items-center justify-between py-2">
-      <span className="text-muted-foreground text-sm font-medium">
-        {title}
-        {count !== undefined && count > 0 && (
-          <span className="ml-1 text-xs">({count})</span>
-        )}
-      </span>
-      {onAdd && (
-        <Button
-          variant="ghost"
-          size="icon"
-          className="text-muted-foreground hover:text-foreground h-6 w-6"
-          onClick={onAdd}
-          aria-label={`Add ${title}`}
-        >
-          <Plus className="h-4 w-4" />
-        </Button>
-      )}
-    </div>
-  )
-)
+const SectionHeader: React.FC<SectionHeaderProps> = React.memo(({ title, onAdd, count }) => (
+  <div className="flex items-center justify-between py-2">
+    <span className="text-muted-foreground text-sm font-medium">
+      {title}
+      {count !== undefined && count > 0 && <span className="ml-1 text-xs">({count})</span>}
+    </span>
+    {onAdd && (
+      <Button
+        variant="ghost"
+        size="icon"
+        className="text-muted-foreground hover:text-foreground h-6 w-6"
+        onClick={onAdd}
+        aria-label={`Add ${title}`}
+      >
+        <Plus className="h-4 w-4" />
+      </Button>
+    )}
+  </div>
+))
 SectionHeader.displayName = 'SectionHeader'
 
 export function ClassDetails() {
@@ -127,7 +114,7 @@ export function ClassDetails() {
   const [selectedElement, setSelectedElement] = useState<string | null>(null)
 
   const handleElementClick = useCallback((elementId: string) => {
-    setSelectedElement((prev) => (prev === elementId ? null : elementId))
+    setSelectedElement(prev => (prev === elementId ? null : elementId))
   }, [])
 
   const handleElementDoubleClick = useCallback(
@@ -165,7 +152,7 @@ export function ClassDetails() {
 
   const subclasses = useMemo(
     () =>
-      Array.from(ontology?.classes.values() || []).filter((ontologyClass) =>
+      Array.from(ontology?.classes.values() || []).filter(ontologyClass =>
         ontologyClass.superClasses.includes(selectedClass?.id || '')
       ),
     [ontology, selectedClass?.id]
@@ -173,7 +160,7 @@ export function ClassDetails() {
 
   const instances = useMemo(
     () =>
-      Array.from(ontology?.individuals.values() || []).filter((individual) =>
+      Array.from(ontology?.individuals.values() || []).filter(individual =>
         individual.types.includes(selectedClass?.id || '')
       ),
     [ontology, selectedClass?.id]
@@ -285,7 +272,7 @@ export function ClassDetails() {
             <SectionHeader title="Equivalent To" onAdd={() => {}} />
             <ItemGroup role="listbox" aria-label="Equivalent classes">
               {selectedClass.equivalentTo.length > 0 ? (
-                selectedClass.equivalentTo.map((equiv) => (
+                selectedClass.equivalentTo.map(equiv => (
                   <ClassElementItem
                     key={`equiv-${equiv}`}
                     id={`equiv-${equiv}`}
@@ -311,7 +298,7 @@ export function ClassDetails() {
             />
             <ItemGroup role="listbox" aria-label="Superclasses">
               {selectedClass.superClasses.length > 0 ? (
-                selectedClass.superClasses.map((superClass) => {
+                selectedClass.superClasses.map(superClass => {
                   const isRestriction =
                     superClass.includes(' some ') || superClass.includes(' only ')
                   return (
@@ -327,9 +314,7 @@ export function ClassDetails() {
                   )
                 })
               ) : (
-                <span className="text-muted-foreground py-1 text-xs italic">
-                  No superclasses
-                </span>
+                <span className="text-muted-foreground py-1 text-xs italic">No superclasses</span>
               )}
             </ItemGroup>
 
@@ -356,7 +341,7 @@ export function ClassDetails() {
             <SectionHeader title="Instances" count={instances.length} onAdd={() => {}} />
             <ItemGroup role="listbox" aria-label="Class instances">
               {instances.length > 0 ? (
-                instances.map((instance) => (
+                instances.map(instance => (
                   <ClassElementItem
                     key={`inst-${instance.id}`}
                     id={`inst-${instance.id}`}
@@ -367,9 +352,7 @@ export function ClassDetails() {
                   />
                 ))
               ) : (
-                <span className="text-muted-foreground py-1 text-xs italic">
-                  No instances
-                </span>
+                <span className="text-muted-foreground py-1 text-xs italic">No instances</span>
               )}
             </ItemGroup>
           </CardContent>
@@ -382,9 +365,7 @@ export function ClassDetails() {
           </CardHeader>
           <CardContent>
             <SectionHeader title="Target for Key" onAdd={() => {}} />
-            <span className="text-muted-foreground py-1 text-xs italic">
-              No keys defined
-            </span>
+            <span className="text-muted-foreground py-1 text-xs italic">No keys defined</span>
           </CardContent>
         </Card>
 
@@ -401,7 +382,7 @@ export function ClassDetails() {
             />
             <ItemGroup role="listbox" aria-label="Disjoint classes">
               {selectedClass.disjointWith.length > 0 ? (
-                selectedClass.disjointWith.map((disjoint) => (
+                selectedClass.disjointWith.map(disjoint => (
                   <ClassElementItem
                     key={`disj-${disjoint}`}
                     id={`disj-${disjoint}`}
@@ -427,7 +408,7 @@ export function ClassDetails() {
             />
             <ItemGroup role="listbox" aria-label="Class properties">
               {selectedClass.properties.length > 0 ? (
-                selectedClass.properties.map((prop) => (
+                selectedClass.properties.map(prop => (
                   <ClassElementItem
                     key={`prop-${prop}`}
                     id={`prop-${prop}`}
@@ -438,9 +419,7 @@ export function ClassDetails() {
                   />
                 ))
               ) : (
-                <span className="text-muted-foreground py-1 text-xs italic">
-                  No properties
-                </span>
+                <span className="text-muted-foreground py-1 text-xs italic">No properties</span>
               )}
             </ItemGroup>
           </CardContent>
@@ -494,9 +473,7 @@ export function ClassDetails() {
                   </Item>
                 ))
               ) : (
-                <span className="text-muted-foreground py-1 text-xs italic">
-                  No annotations
-                </span>
+                <span className="text-muted-foreground py-1 text-xs italic">No annotations</span>
               )}
             </ItemGroup>
           </CardContent>

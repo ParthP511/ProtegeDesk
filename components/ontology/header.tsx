@@ -6,12 +6,13 @@ import { Save } from 'lucide-react'
 import { ImportExportDialog } from './import-export-dialog'
 import { NewEntityDialog } from './new-entity-dialog'
 import { ReasonerDialog } from './reasoner-dialog'
+import { GlobalSearch } from './global-search'
 import packageJson from '@/package.json'
 
 export function OntologyHeader() {
   return (
     <header className="border-border bg-card border-b">
-      <div className="flex h-14 items-center justify-between px-4">
+      <div className="flex h-14 items-center justify-between gap-4 px-4">
         <div className="flex items-center gap-4">
           <h1 className="text-foreground text-lg font-semibold">
             Protege<span className="text-primary">TS</span>
@@ -42,6 +43,10 @@ export function OntologyHeader() {
               </svg>
             </a>
           </Button>
+        </div>
+
+        <div className="flex flex-1 justify-center px-4">
+          <GlobalSearch />
         </div>
 
         <div className="flex items-center gap-2">
