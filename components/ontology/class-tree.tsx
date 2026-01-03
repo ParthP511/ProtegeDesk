@@ -17,7 +17,7 @@ type ClassTreeNodeProps = {
 }
 
 function ClassTreeNode({ classId, owlClass, level }: ClassTreeNodeProps) {
-  const { ontology, selectedClass, selectClass } = useOntology()
+  const { ontology, selectedClass, selectClass, selectProperty, selectIndividual } = useOntology()
   const [isExpanded, setIsExpanded] = useState(true)
 
   // Find subclasses
@@ -49,6 +49,9 @@ function ClassTreeNode({ classId, owlClass, level }: ClassTreeNodeProps) {
             classId,
             className: owlClass.label || owlClass.name,
           })
+          // Clear other selections to ensure only the class is selected
+          selectProperty(null)
+          selectIndividual(null)
           selectClass(classId)
         }}
       >

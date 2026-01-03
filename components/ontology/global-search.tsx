@@ -51,22 +51,21 @@ export function GlobalSearch() {
 
     const type = getEntityType(result.entity)
 
-    // Clear all selections first, then set the selected entity
+    // Clear other selections based on entity type to ensure only one entity is selected
     // This ensures the DetailsPanel shows the correct entity
-    selectClass(null)
-    selectProperty(null)
-    selectIndividual(null)
-
-    // Use setTimeout to ensure the clear happens before the new selection
-    setTimeout(() => {
-      if (type === 'class') {
-        selectClass(result.entity.id)
-      } else if (type === 'property') {
-        selectProperty(result.entity.id)
-      } else {
-        selectIndividual(result.entity.id)
-      }
-    }, 0)
+    if (type === 'class') {
+      selectProperty(null)
+      selectIndividual(null)
+      selectClass(result.entity.id)
+    } else if (type === 'property') {
+      selectClass(null)
+      selectIndividual(null)
+      selectProperty(result.entity.id)
+    } else {
+      selectClass(null)
+      selectProperty(null)
+      selectIndividual(result.entity.id)
+    }
 
     // Clear search and close dropdown
     setSearchQuery('')

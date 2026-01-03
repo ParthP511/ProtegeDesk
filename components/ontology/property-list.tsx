@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 export function PropertyList() {
-  const { ontology, selectedProperty, selectProperty } = useOntology()
+  const { ontology, selectedProperty, selectProperty, selectClass, selectIndividual } = useOntology()
   const [searchQuery, setSearchQuery] = useState('')
 
   const properties = Array.from(ontology?.properties.values() || [])
@@ -34,7 +34,12 @@ export function PropertyList() {
     const isSelected = selectedProperty?.id === property.id
     return (
       <div
-        onClick={() => selectProperty(property.id)}
+        onClick={() => {
+          // Clear other selections to ensure only the property is selected
+          selectClass(null)
+          selectIndividual(null)
+          selectProperty(property.id)
+        }}
         className={cn(
           'hover:bg-accent group flex cursor-pointer items-center justify-between rounded p-2 text-sm',
           isSelected && 'bg-primary/20 text-primary'

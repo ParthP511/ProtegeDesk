@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
 export function IndividualList() {
-  const { ontology, selectedIndividual, selectIndividual } = useOntology()
+  const { ontology, selectedIndividual, selectIndividual, selectClass, selectProperty } = useOntology()
   const [searchQuery, setSearchQuery] = useState('')
 
   const individuals = Array.from(ontology?.individuals.values() || [])
@@ -54,7 +54,12 @@ export function IndividualList() {
     const isSelected = selectedIndividual?.id === individual.id
     return (
       <div
-        onClick={() => selectIndividual(individual.id)}
+        onClick={() => {
+          // Clear other selections to ensure only the individual is selected
+          selectClass(null)
+          selectProperty(null)
+          selectIndividual(individual.id)
+        }}
         className={cn(
           'hover:bg-accent group flex cursor-pointer items-center gap-2 rounded p-2 text-sm',
           isSelected && 'bg-primary/20 text-primary'
