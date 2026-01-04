@@ -99,10 +99,12 @@ export default [
     },
   },
   {
+    // Override: allow magic numbers ONLY in constants file
     files: ['lib/constants.ts'],
     rules: {
       'no-magic-numbers': 'off',
     },
+    // Override: allow magic numbers ONLY in tests file
     files: ["**/__tests__/**/*", "**/*.test.ts", "**/*.test.tsx", "jest.config.ts", "jest.setup.ts"],
     languageOptions: {
       globals: {

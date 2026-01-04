@@ -297,6 +297,7 @@ npm run validate    # Run all checks
 - ✅ **Prettier** with Tailwind CSS class sorting
 - ✅ **Accessibility** rules (jsx-a11y)
 - ✅ **Auto-fix** for most issues
+- ✅ **Magic-number warnings** for constants outside of lib/constants.ts
 
 ### Configuration
 
