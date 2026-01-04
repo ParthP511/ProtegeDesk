@@ -337,22 +337,22 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - **SIVA** ([@NANI-31](https://github.com/NANI-31))
   - Enhanced graph visualization with zoom controls
+  - Drag-and-drop file import implementation
   - Breadcrumb navigation implementation
   - Copy IRI button for entity cards
+  - Class tree search functionality
 
 - **charulata871** ([@charulata871](https://github.com/charulata871))
   - Code refactoring and improved variable naming
   - ClassDetails component refactoring
   - Enhanced code quality and maintainability
+  - Debug logging implementation
 
 - **ParthP511** ([@ParthP511](https://github.com/ParthP511))
   - Comprehensive inline documentation comments
   - Documented reasoning logic in core modules
-
-- **Nachu**
-  - Professional ESLint and Prettier configuration setup
-  - Comprehensive logic-focused unit testing infrastructure (130 tests)
-  - Bug fixes and repository maintenance
+  - URL copy functionality with toast notifications
+  - Header component testing
 
 See [CONTRIBUTORS.md](CONTRIBUTORS.md) for the complete list and detailed contribution information.
 
