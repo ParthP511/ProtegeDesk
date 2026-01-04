@@ -44,9 +44,7 @@ type OntologyContextType = {
 const OntologyContext = createContext<OntologyContextType | undefined>(undefined)
 
 
-export function OntologyProvider({ children }: { children: React.ReactNode }):JSX.Element {
-
-export function OntologyProvider({ children }: { children: React.ReactNode }) {
+export function OntologyProvider({ children }: { children: React.ReactNode }): JSX.Element {
   /**
    * The full ontology object is stored as a single state value.
    * Internally, it contains Maps for fast lookup and mutation.
@@ -264,16 +262,13 @@ export function OntologyProvider({ children }: { children: React.ReactNode }) {
 }
 
 
-export function useOntology():OntologyContextType {
-
 /**
  * Consumer hook with a guard to ensure correct usage.
  *
  * Throwing here provides a fast, clear failure mode during development
  * instead of silently returning undefined behavior.
  */
-export function useOntology() {
-
+export function useOntology(): OntologyContextType {
   const context = useContext(OntologyContext)
   if (context === undefined) {
     throw new Error('useOntology must be used within an OntologyProvider')

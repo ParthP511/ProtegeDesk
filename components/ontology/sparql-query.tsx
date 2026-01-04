@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Play, Download, Copy, AlertCircle } from 'lucide-react'
+import { Play, Download, Copy, AlertCircle, Table2, FileJson, LayoutGrid } from 'lucide-react'
 import { Textarea } from '@/components/ui/textarea'
 import {
   Table,
@@ -23,8 +23,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
+import CodeMirror from '@uiw/react-codemirror'
+import { json } from '@codemirror/lang-json'
+import { EditorView } from '@codemirror/view'
+
+type ViewMode = 'table' | 'json' | 'cards'
 
 export function SPARQLQuery() {
   const { ontology } = useOntology()
@@ -33,6 +38,7 @@ export function SPARQLQuery() {
   const [error, setError] = useState<string | null>(null)
   const [isExecuting, setIsExecuting] = useState(false)
   const [activeTab, setActiveTab] = useState('editor')
+  const [viewMode, setViewMode] = useState<ViewMode>('table')
 
   const executeQuery = () => {
     if (!ontology) {
@@ -189,6 +195,22 @@ export function SPARQLQuery() {
                   </div>
                 </div>
               )}
+
+              <div className="border-t pt-3">
+                <h3 className="mb-2 text-sm font-semibold">Sample Queries</h3>
+                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                  {SAMPLE_QUERIES.map((sample, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => loadSampleQuery(idx)}
+                      className="hover:bg-accent rounded-md border p-3 text-left transition-colors"
+                    >
+                      <p className="text-sm font-medium">{sample.name}</p>
+                      <p className="text-muted-foreground mt-1 text-xs">{sample.description}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           </TabsContent>
 
@@ -226,48 +248,136 @@ export function SPARQLQuery() {
                       Edit Query
                     </Button>
                   </div>
-                  <Button onClick={downloadResults} variant="outline" size="sm">
-                    <Download className="mr-2 h-4 w-4" />
-                    Download JSON
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 rounded-md border p-1">
+                      <Button
+                        onClick={() => setViewMode('table')}
+                        variant={viewMode === 'table' ? 'secondary' : 'ghost'}
+                        size="sm"
+                        className="h-7 px-2"
+                        title="Table View"
+                      >
+                        <Table2 className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        onClick={() => setViewMode('cards')}
+                        variant={viewMode === 'cards' ? 'secondary' : 'ghost'}
+                        size="sm"
+                        className="h-7 px-2"
+                        title="Card View"
+                      >
+                        <LayoutGrid className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        onClick={() => setViewMode('json')}
+                        variant={viewMode === 'json' ? 'secondary' : 'ghost'}
+                        size="sm"
+                        className="h-7 px-2"
+                        title="JSON View"
+                      >
+                        <FileJson className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <Button onClick={downloadResults} variant="outline" size="sm">
+                      <Download className="mr-2 h-4 w-4" />
+                      Download JSON
+                    </Button>
+                  </div>
                 </div>
 
-                <ScrollArea className="flex-1">
+                <div className="flex-1 overflow-auto">
                   {result.results.bindings.length > 0 ? (
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          {result.head.vars.map(variable => (
-                            <TableHead key={variable} className="font-mono">
-                              ?{variable}
-                            </TableHead>
+                    <>
+                      {viewMode === 'table' && (
+                        <div className="overflow-auto">
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                {result.head.vars.map(variable => (
+                                  <TableHead key={variable} className="font-mono">
+                                    ?{variable}
+                                  </TableHead>
+                                ))}
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {result.results.bindings.map((binding, idx) => (
+                                <TableRow key={idx}>
+                                  {result.head.vars.map(variable => (
+                                    <TableCell key={variable} className="font-mono text-xs">
+                                      {variable in binding ? (
+                                        <span title={String(binding[variable])}>
+                                          {formatValue(binding[variable])}
+                                        </span>
+                                      ) : (
+                                        <span className="text-muted-foreground italic">-</span>
+                                      )}
+                                    </TableCell>
+                                  ))}
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </div>
+                      )}
+
+                      {viewMode === 'cards' && (
+                        <div className="grid gap-3 p-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                          {result.results.bindings.map((binding, idx) => (
+                            <Card key={idx} className="p-4">
+                              <div className="mb-2 flex items-center justify-between">
+                                <Badge variant="outline" className="text-xs">
+                                  Result {idx + 1}
+                                </Badge>
+                              </div>
+                              <div className="space-y-2">
+                                {result.head.vars.map(variable => (
+                                  <div key={variable} className="border-b pb-2 last:border-0">
+                                    <p className="text-muted-foreground mb-1 font-mono text-xs font-medium">
+                                      ?{variable}
+                                    </p>
+                                    {variable in binding ? (
+                                      <p className="break-words text-sm" title={String(binding[variable])}>
+                                        {formatValue(binding[variable])}
+                                      </p>
+                                    ) : (
+                                      <p className="text-muted-foreground text-xs italic">No value</p>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            </Card>
                           ))}
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {result.results.bindings.map((binding, idx) => (
-                          <TableRow key={idx}>
-                            {result.head.vars.map(variable => (
-                              <TableCell key={variable} className="font-mono text-xs">
-                                {variable in binding ? (
-                                  <span title={String(binding[variable])}>
-                                    {formatValue(binding[variable])}
-                                  </span>
-                                ) : (
-                                  <span className="text-muted-foreground italic">-</span>
-                                )}
-                              </TableCell>
-                            ))}
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
+                        </div>
+                      )}
+
+                      {viewMode === 'json' && (
+                        <div className="w-full pb-4">
+                          <CodeMirror
+                            value={JSON.stringify(result, null, 2)}
+                            extensions={[
+                              json(),
+                              EditorView.lineWrapping,
+                              EditorView.editable.of(false),
+                            ]}
+                            theme="dark"
+                            style={{ width: '100%' }}
+                            basicSetup={{
+                              lineNumbers: true,
+                              highlightActiveLineGutter: true,
+                              highlightActiveLine: true,
+                              foldGutter: true,
+                            }}
+                          />
+                        </div>
+                      )}
+                    </>
                   ) : (
                     <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
                       No results found
                     </div>
                   )}
-                </ScrollArea>
+                </div>
               </div>
             ) : (
               <div className="text-muted-foreground flex h-full items-center justify-center text-sm">
@@ -276,22 +386,6 @@ export function SPARQLQuery() {
             )}
           </TabsContent>
         </Tabs>
-      </Card>
-
-      <Card className="p-4">
-        <h3 className="mb-2 text-sm font-semibold">Sample Queries</h3>
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {SAMPLE_QUERIES.map((sample, idx) => (
-            <button
-              key={idx}
-              onClick={() => loadSampleQuery(idx)}
-              className="hover:bg-accent rounded-md border p-3 text-left transition-colors"
-            >
-              <p className="text-sm font-medium">{sample.name}</p>
-              <p className="text-muted-foreground mt-1 text-xs">{sample.description}</p>
-            </button>
-          ))}
-        </div>
       </Card>
     </div>
   )

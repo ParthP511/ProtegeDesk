@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { OntologyHeader } from '../header'
+import { OntologyProvider } from '@/lib/ontology/context'
 
 // Mock dialog components to avoid testing their internal behavior.
 // We only care that they render trigger buttons.
@@ -15,9 +16,17 @@ jest.mock('../import-export-dialog', () => ({
   ImportExportDialog: () => <button>Import / Export</button>,
 }))
 
+jest.mock('../global-search', () => ({
+  GlobalSearch: () => <div>Global Search</div>,
+}))
+
 describe('OntologyHeader', () => {
+  const renderWithProvider = (ui: React.ReactElement) => {
+    return render(<OntologyProvider>{ui}</OntologyProvider>)
+  }
+
   it('renders the application title', () => {
-    render(<OntologyHeader />)
+    renderWithProvider(<OntologyHeader />)
 
     expect(screen.getByText('Protege')).toBeInTheDocument()
     expect(screen.getByText('TS')).toBeInTheDocument()
@@ -25,7 +34,7 @@ describe('OntologyHeader', () => {
   })
 
   it('renders all action buttons', () => {
-    render(<OntologyHeader />)
+    renderWithProvider(<OntologyHeader />)
 
     expect(screen.getByRole('button', { name: /new entity/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /reasoner/i })).toBeInTheDocument()
@@ -34,7 +43,7 @@ describe('OntologyHeader', () => {
   })
 
   it('renders a semantic header element for accessibility', () => {
-    render(<OntologyHeader />)
+    renderWithProvider(<OntologyHeader />)
 
     expect(screen.getByRole('banner')).toBeInTheDocument()
   })
@@ -43,6 +52,6 @@ describe('OntologyHeader', () => {
     // This test intentionally does not simulate keyboard shortcuts
     // because OntologyHeader does not currently define any.
     // It acts as a guard against regressions when shortcuts are added later.
-    expect(() => render(<OntologyHeader />)).not.toThrow()
+    expect(() => renderWithProvider(<OntologyHeader />)).not.toThrow()
   })
 })
