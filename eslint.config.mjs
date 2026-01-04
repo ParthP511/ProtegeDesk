@@ -57,6 +57,17 @@ export default [
       ...react.configs.recommended.rules,
       ...reactHooks.configs.recommended.rules,
 
+      // Default: disallow magic numbers everywhere
+      'no-magic-numbers': [
+        'warn',
+        {
+          ignore: [0, 1],
+          ignoreEnums: true,
+          ignoreNumericLiteralTypes: true,
+          enforceConst: true,
+          detectObjects: true,
+        },
+      ],
       "prettier/prettier": ["error", {
         endOfLine: "auto",
       }],
@@ -88,6 +99,12 @@ export default [
     },
   },
   {
+    // Override: allow magic numbers ONLY in constants file
+    files: ['lib/constants.ts'],
+    rules: {
+      'no-magic-numbers': 'off',
+    },
+    // Override: allow magic numbers ONLY in tests file
     files: ["**/__tests__/**/*", "**/*.test.ts", "**/*.test.tsx", "jest.config.ts", "jest.setup.ts"],
     languageOptions: {
       globals: {
@@ -104,6 +121,7 @@ export default [
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-non-null-assertion": "off",
+      'no-magic-numbers': 'off',
     },
   },
   {

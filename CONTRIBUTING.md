@@ -326,6 +326,7 @@ npm run lint:fix
 - **Semicolons** required
 - **Trailing commas** in multiline
 - **Max line length**: 100 characters
+- **Constants in one file**: No magic numbers outside of lib/constants.ts
 
 ---
 
