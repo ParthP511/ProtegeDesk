@@ -18,10 +18,12 @@ import {
 import { Button } from '@/components/ui/button'
 import { Copy } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
+import { useCopyToClipboard } from '@/hooks/copy-to-clipboard'
 
 export function PropertyDetails() {
   const { selectedProperty } = useOntology()
   const { toast } = useToast()
+  const { copy, copied } = useCopyToClipboard('')
 
   if (!selectedProperty) {
     return (
@@ -64,12 +66,20 @@ export function PropertyDetails() {
                   variant="outline"
                   size="icon"
                   className="h-8 w-8 shrink-0"
-                  onClick={() => {
-                    navigator.clipboard.writeText(selectedProperty.id)
-                    toast({
-                      title: 'Copied to clipboard',
-                      description: 'The entity IRI has been copied.',
-                    })
+                  onClick={async () => {
+                    const success = await copy(selectedProperty.id)
+
+                    if(success) {
+                      toast({
+                        title: 'Copied',
+                        description: 'The entity IRI has been copied.'
+                      })
+                    } else {
+                      toast({
+                        title: 'Copy failed',
+                        variant: 'destructive',
+                      })
+                    }
                   }}
                 >
                   <Copy className="h-4 w-4" />
