@@ -129,6 +129,8 @@ export function GraphView() {
   const [edges, setEdges] = useState<Edge[]>([])
   const [selectedNode, setSelectedNode] = useState<string | null>(null)
   const [isSimulating, setIsSimulating] = useState(true)
+  const [clickPosition, setClickPosition] = useState<{x: number; y: number } | null> (null)
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false)
 
   const selectedNodeData = useMemo(() => {
     if(!ontology || !selectedNode)  return null;
@@ -483,11 +485,14 @@ export function GraphView() {
 
     if (clickedNode) {
       setSelectedNode(clickedNode.id)
+      setIsDialogOpen(true)
       if (clickedNode.type === 'class') {
         selectClass(clickedNode.id)
       }
+      setClickPosition({x: e.clientX, y: e.clientY})
     } else {
       setSelectedNode(null)
+      setClickPosition(null)
     }
   }
 
@@ -661,12 +666,20 @@ export function GraphView() {
           </div>
         )}
       </div>
-        {selectedNodeData && <Dialog
-          open={!!selectedNodeData}
-          onOpenChange={open => {
-            if (!open) setSelectedNode(null)
-          }}>
-        <DialogContent className="max-w-md">
+        {selectedNodeData && clickPosition && <Dialog
+          open={isDialogOpen}
+          onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-md"
+        style={{
+          position: 'fixed',
+          top: clickPosition.y + 200,
+          left: clickPosition.x + 200,
+          maxWidth: '300px', 
+          overflow: 'auto',
+          borderRadius: '8px',       // optional, keeps corners rounded
+          backgroundColor: 'var(--card-background, #1c1c1c)', // ensure background is visible
+          boxShadow: '0 4px 16px rgba(0,0,0,0.3)', // optional for nicer look
+        }}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 capitalize">
               {selectedNodeData?.type}
