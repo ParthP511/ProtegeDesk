@@ -17,11 +17,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Brain, CheckCircle2, XCircle, AlertTriangle, Clock, Loader2 } from 'lucide-react'
 import { REASONER_DIALOG_TIME_DELAY_MS } from '../../lib/constants'
+import { useToast } from '@/hooks/use-toast'
+
 export function ReasonerDialog() {
   const { ontology } = useOntology()
   const [open, setOpen] = useState(false)
   const [result, setResult] = useState<ReasoningResult | null>(null)
   const [isReasoning, setIsReasoning] = useState(false)
+  const { toast } = useToast()
 
   const handleReason = () => {
     if (!ontology) {
@@ -34,6 +37,15 @@ export function ReasonerDialog() {
       const reasoningResult = runReasoner(ontology)
       setResult(reasoningResult)
       setIsReasoning(false)
+
+      toast({
+        title: 'Reasoning completed',
+        description: reasoningResult.consistent
+        ? 'Ontology is logically consistent'
+        : `${reasoningResult.errors.length} errors, ${reasoningResult.warnings.length} warnings`,
+        variant: reasoningResult.consistent ? 'default' : 'destructive',
+        duration: 4000,
+      })
     }, REASONER_DIALOG_TIME_DELAY_MS)
   }
 
