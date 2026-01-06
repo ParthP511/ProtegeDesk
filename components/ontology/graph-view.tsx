@@ -2,7 +2,7 @@
 
 import type React from 'react'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useOntology } from '@/lib/ontology/context'
 import { Button } from '@/components/ui/button'
 import { ZoomIn, ZoomOut, Maximize, Download, RotateCcw } from 'lucide-react'
@@ -35,6 +35,17 @@ import {
   FIT_VIEW_PADDING,
   MAX_FIT_ZOOM,
 } from '../../lib/constants'
+
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Badge } from '@/components/ui/badge'
+import { ClassDetails } from './class-details'
+import { PropertyDetails } from './property-details'
+import { IndividualDetails } from './individual-details'
 
 type Node = {
   id: string
@@ -118,6 +129,41 @@ export function GraphView() {
   const [edges, setEdges] = useState<Edge[]>([])
   const [selectedNode, setSelectedNode] = useState<string | null>(null)
   const [isSimulating, setIsSimulating] = useState(true)
+  const [clickPosition, setClickPosition] = useState<{x: number; y: number } | null> (null)
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false)
+
+  const selectedNodeData = useMemo(() => {
+    if(!ontology || !selectedNode)  return null;
+    
+    const classData = ontology.classes.get(selectedNode)
+    if(ontology.classes.has(selectedNode)) {
+      return {
+        id: selectedNode,
+        type: 'class' as const,
+        data: classData,
+      }
+    }
+
+    const propertyData = ontology.properties.get(selectedNode)
+    if(ontology.properties.has(selectedNode)) {
+      return {
+        id: selectedNode,
+        type: 'property' as const,
+        data: propertyData,
+      }
+    }
+
+    const individualData = ontology.individuals.get(selectedNode)
+    if(ontology.individuals.has(selectedNode)) {
+      return {
+        id: selectedNode,
+        type: 'individual' as const,
+        data: individualData,
+      }
+    }
+    
+    return null
+  }, [ontology, selectedNode])
 
   useEffect(() => {
     if (!ontology) {
@@ -439,11 +485,14 @@ export function GraphView() {
 
     if (clickedNode) {
       setSelectedNode(clickedNode.id)
+      setIsDialogOpen(true)
       if (clickedNode.type === 'class') {
         selectClass(clickedNode.id)
       }
+      setClickPosition({x: e.clientX, y: e.clientY})
     } else {
       setSelectedNode(null)
+      setClickPosition(null)
     }
   }
 
@@ -617,6 +666,37 @@ export function GraphView() {
           </div>
         )}
       </div>
+        {selectedNodeData && clickPosition && <Dialog
+          open={isDialogOpen}
+          onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-md"
+        style={{
+          position: 'fixed',
+          top: clickPosition.y + 200,
+          left: clickPosition.x + 200,
+          maxWidth: '300px', 
+          overflow: 'auto',
+          borderRadius: '8px',       // optional, keeps corners rounded
+          backgroundColor: 'var(--card-background, #1c1c1c)', // ensure background is visible
+          boxShadow: '0 4px 16px rgba(0,0,0,0.3)', // optional for nicer look
+        }}>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 capitalize">
+              {selectedNodeData?.type}
+              <Badge variant="outline">{selectedNodeData?.id}</Badge>
+            </DialogTitle>
+          </DialogHeader>
+
+          {selectedNodeData && selectedNodeData.type === 'class' && 
+          <ClassDetails isModalView={true}/>}
+
+          {selectedNodeData && selectedNodeData.type === 'property' &&
+          <PropertyDetails isModalView={true} property={selectedNodeData.data}/>}
+
+          {selectedNodeData && selectedNodeData.type === 'individual' && 
+          <IndividualDetails isModalView={true} individual={selectedNodeData.data}/>}
+        </DialogContent>
+      </Dialog>}
     </div>
   )
 }
