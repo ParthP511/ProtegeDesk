@@ -10,8 +10,14 @@ import { Button } from '@/components/ui/button'
 import { Copy, User, Plus, X } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { useCopyToClipboard } from '@/hooks/copy-to-clipboard'
+import { Individual } from '@/lib/ontology/types'
 
-export function IndividualDetails() {
+interface IndividualDetailsProps {
+  isModalView?: boolean
+  individual?: Individual
+}
+
+export function IndividualDetails({ isModalView, individual }: IndividualDetailsProps) {
   const { selectedIndividual } = useOntology()
   const { toast } = useToast()
   const { copy, copied } = useCopyToClipboard('')
@@ -31,6 +37,60 @@ export function IndividualDetails() {
       })
     }
   }
+
+  if(isModalView && individual) {
+    return (
+      <>
+        <div className="space-y-2">
+          <Label className="text-xs">Name</Label>
+          <Input value={individual.name} readOnly className="text-xs" />
+        </div>
+        <div className="space-y-2">
+          <Label className="text-xs">Label</Label>
+          <Input value={individual.label} readOnly className="text-xs" />
+        </div>
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm">Property Assertions</CardTitle>
+              <Button variant="ghost" size="sm" className="h-6 px-2">
+                <Plus className="h-3 w-3" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {individual.propertyAssertions.length === 0 ? (
+              <p className="text-muted-foreground text-xs">No property assertions</p>
+            ) : (
+              <div className="space-y-2">
+                {individual.propertyAssertions.map((assertion, idx) => (
+                  <div key={idx} className="bg-muted space-y-1 rounded p-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono text-xs font-semibold">{assertion.property}</span>
+                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-muted-foreground text-xs">Value:</span>
+                      <span className="font-mono text-xs">{String(assertion.value)}</span>
+                    </div>
+                    {assertion.datatype && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground text-xs">Type:</span>
+                        <Badge variant="outline" className="text-xs">
+                          {assertion.datatype}
+                        </Badge>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </>
+    )}
 
   if (!selectedIndividual) {
     return (

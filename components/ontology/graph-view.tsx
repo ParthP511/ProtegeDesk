@@ -45,6 +45,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { ClassDetails } from './class-details'
 import { PropertyDetails } from './property-details'
+import { IndividualDetails } from './individual-details'
 
 type Node = {
   id: string
@@ -678,72 +679,9 @@ export function GraphView() {
 
           {selectedNodeData && selectedNodeData.type === 'property' &&
           <PropertyDetails isModalView={true} property={selectedNodeData.data}/>}
-          {/* {selectedNodeData && selectedNodeData?.type === 'class' && (
-            <div className="space-y-3 text-sm">
-              <div>
-                <span className="text-muted-foreground">Label:</span>{' '}
-                {selectedNodeData.data && (selectedNodeData.data.label || selectedNodeData.data.name)}
-              </div>
 
-              <div>
-                <span className="text-muted-foreground">Super Classes:</span>
-                <div className="mt-1 flex flex-wrap gap-1">
-                  {selectedNodeData.data && selectedNodeData.data.superClasses.map((sc: string) => (
-                    <Badge key={sc} variant="secondary">
-                      {ontology?.classes.get(sc)?.name || sc}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {selectedNodeData?.type === 'property' && (
-            <div className="space-y-3 text-sm">
-              <div>
-                <span className="text-muted-foreground">Type:</span>{' '}
-                {selectedNodeData.data && selectedNodeData.data.type}
-              </div>
-
-              <div>
-                <span className="text-muted-foreground">Domain:</span>
-                <div className="mt-1 flex flex-wrap gap-1">
-                  {selectedNodeData.data && selectedNodeData.data.domain.map((d: string) => (
-                    <Badge key={d} variant="secondary">
-                      {ontology?.classes.get(d)?.name || d}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-
-              {selectedNodeData.data && selectedNodeData.data.range && (
-                <div>
-                  <span className="text-muted-foreground">Range:</span>{' '}
-                  {selectedNodeData.data.range}
-                </div>
-              )}
-            </div>
-          )}
-
-          {selectedNodeData.data && selectedNodeData?.type === 'individual' && (
-            <div className="space-y-3 text-sm">
-              <div>
-                <span className="text-muted-foreground">Label:</span>{' '}
-                {selectedNodeData.data.label || selectedNodeData.data.name}
-              </div>
-
-              <div>
-                <span className="text-muted-foreground">Types:</span>
-                <div className="mt-1 flex flex-wrap gap-1">
-                  {selectedNodeData.data.types.map((t: string) => (
-                    <Badge key={t} variant="secondary">
-                      {ontology?.classes.get(t)?.name || t}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )} */}
+          {selectedNodeData && selectedNodeData.type === 'individual' && 
+          <IndividualDetails isModalView={true} individual={selectedNodeData.data}/>}
         </DialogContent>
       </Dialog>}
     </div>
