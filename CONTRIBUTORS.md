@@ -33,6 +33,7 @@ We appreciate all contributions to this project, big or small!
   - ClassDetails component refactoring
   - Debug logging implementation (replaced console.log)
   - Explicit return type annotations
+  - Type safety improvements with explicit return type annotations
   - Repository: https://github.com/charulata871/ProtegeDesk
 
 - **ParthP511** ([@ParthP511](https://github.com/ParthP511))
@@ -42,6 +43,20 @@ We appreciate all contributions to this project, big or small!
   - URL copy functionality with toast notifications
   - Header component testing
   - Constants refactoring and organization
+  - Modal dialogs for selected graph nodes (class, property, individual details)
+  - Copy to clipboard hook implementation
+  - ESLint magic numbers rule enforcement
+  - Test suite fixes for file parsing issues
+
+- **mostafakm78** ([@mostafakm78](https://github.com/mostafakm78))
+  - Performance optimization with component memoization
+  - Ontology list item component improvements
+
+- **sojukrishna** ([@sojukrishna](https://github.com/sojukrishna))
+  - Input validation for IRI format in NewEntityDialog
+
+- **Anoop-2024si96509** ([@Anoop-2024si96509](https://github.com/Anoop-2024si96509))
+  - Inline code comments for complex algorithms
 
 ## How to Contribute
 
