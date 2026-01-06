@@ -28,6 +28,7 @@ import { toast } from 'sonner'
 import CodeMirror from '@uiw/react-codemirror'
 import { json } from '@codemirror/lang-json'
 import { EditorView } from '@codemirror/view'
+import { useCopyToClipboard } from '@/hooks/copy-to-clipboard'
 
 type ViewMode = 'table' | 'json' | 'cards'
 
@@ -39,6 +40,7 @@ export function SPARQLQuery() {
   const [isExecuting, setIsExecuting] = useState(false)
   const [activeTab, setActiveTab] = useState('editor')
   const [viewMode, setViewMode] = useState<ViewMode>('table')
+  const { copy, copied } = useCopyToClipboard('');
 
   const executeQuery = () => {
     if (!ontology) {
@@ -77,9 +79,14 @@ export function SPARQLQuery() {
     }
   }
 
-  const copyQuery = () => {
-    navigator.clipboard.writeText(query)
-    toast.success('Query copied to clipboard')
+  const copyQuery = async () => {
+    const success = await copy(query)
+
+    if(success) {
+      toast.success('Query copied to clipboard')
+    } else {
+      toast.error('Unable to copy to clipboard')
+    }
   }
 
   const downloadResults = () => {

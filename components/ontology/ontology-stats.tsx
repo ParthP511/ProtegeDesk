@@ -7,6 +7,7 @@ import { Box, Link2, User } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { Toaster } from '@/components/ui/toaster'
 import { Button } from '../ui/button'
+import { useCopyToClipboard } from '@/hooks/copy-to-clipboard'
 
 export function OntologyStats() {
   const { ontology } = useOntology()
@@ -14,7 +15,8 @@ export function OntologyStats() {
   const classCount = ontology?.classes.size ?? 0
   const propertyCount = ontology?.properties.size ?? 0
   const individualCount = ontology?.individuals.size ?? 0
-  const { toast } = useToast();
+  const { toast } = useToast()
+  const { copy, copied } = useCopyToClipboard('')
 
   // Debug logging when ontology changes
   useEffect(() => {
@@ -33,12 +35,19 @@ export function OntologyStats() {
   }
 
   const onClickHandler = async () => {
-    await navigator.clipboard.writeText(ontology.id)
-  
-    toast({
-      title: 'Copied',
-      description: 'IRI copied to clipboard',
-    })
+    const success = await copy(ontology.id)
+
+    if(success) {
+      toast({
+        title: 'Copied',
+        description: 'Ontology IRI copied to clipboard',
+      })
+    } else {
+      toast({
+        title: 'Copy failed',
+        variant: 'destructive',
+      })
+    }
   }
 
   return (

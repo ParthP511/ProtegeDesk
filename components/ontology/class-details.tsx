@@ -20,6 +20,7 @@ import {
 import { Copy, ChevronRight, Home, Plus } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
+import { useCopyToClipboard } from '@/hooks/copy-to-clipboard'
 
 interface ClassElementItemProps {
   id: string
@@ -112,6 +113,7 @@ export function ClassDetails() {
   const { selectedClass, ontology, selectClass } = useOntology()
   const { toast } = useToast()
   const [selectedElement, setSelectedElement] = useState<string | null>(null)
+  const { copy, copied } = useCopyToClipboard('');
 
   const handleElementClick = useCallback((elementId: string) => {
     setSelectedElement(prev => (prev === elementId ? null : elementId))
@@ -218,12 +220,20 @@ export function ClassDetails() {
                   variant="outline"
                   size="icon"
                   className="h-8 w-8 shrink-0"
-                  onClick={() => {
-                    navigator.clipboard.writeText(selectedClass.id)
-                    toast({
-                      title: 'Copied to clipboard',
-                      description: 'The entity IRI has been copied.',
-                    })
+                  onClick={async () => {
+                    const success = await copy(selectedClass.id)
+
+                    if(success) {
+                      toast({
+                        title: 'Copied',
+                        description: 'The entity IRI has been copied',
+                      })
+                    } else {
+                      toast({
+                        title: 'Copy failed',
+                        variant: 'destructive',
+                      })
+                    }
                   }}
                 >
                   <Copy className="h-4 w-4" />

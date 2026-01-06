@@ -9,17 +9,27 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Button } from '@/components/ui/button'
 import { Copy, User, Plus, X } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
+import { useCopyToClipboard } from '@/hooks/copy-to-clipboard'
 
 export function IndividualDetails() {
   const { selectedIndividual } = useOntology()
   const { toast } = useToast()
+  const { copy, copied } = useCopyToClipboard('')
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
-    toast({
-      title: 'Copied to clipboard',
-      description: `Copied "${text}" to clipboard`,
-    })
+  const copyToClipboard = async (text: string) => {
+    const success = await copy(text)
+
+    if(success) {
+      toast({
+        title: 'Copied',
+        description: `Copied "${text}" to clipboard`,
+      })
+    } else {
+      toast({
+        title: 'Copy failed',
+        variant: 'destructive',
+      })
+    }
   }
 
   if (!selectedIndividual) {
