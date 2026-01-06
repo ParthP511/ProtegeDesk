@@ -330,43 +330,79 @@ function getAttributeNS(
 
 /**
  * Resolve a potentially relative IRI against a base URI.
- * Per W3C RDF/XML spec, IRIs starting with # are relative to xml:base.
+ * 
+ * WHY IRI resolution is needed:
+ * Per W3C RDF/XML specification, IRIs in ontology documents can be relative
+ * (e.g., "#Person") and must be resolved against the document's base URI
+ * (xml:base attribute) to produce absolute IRIs for entity identification.
+ * 
+ * HOW resolution works:
+ * 1. If IRI is already absolute (http/https), return as-is
+ * 2. If IRI starts with #, treat as fragment identifier relative to base
+ * 3. Otherwise, concatenate base + IRI (general relative case)
+ * 
+ * This ensures all entities have globally unique identifiers (IRIs)
+ * that can be referenced across different ontology documents.
  */
 function resolveIRI(iri: string, xmlBase: string): string {
   if (!iri) {
     return iri
   }
 
-  // Already absolute
+  // Already absolute - no resolution needed
+  // WHY check both http and https: These are the standard URI schemes for ontologies
   if (iri.startsWith('http://') || iri.startsWith('https://')) {
     return iri
   }
 
-  // Relative IRI starting with #
+  // Relative IRI starting with # (fragment identifier)
+  // WHY remove trailing #: Prevents double # in resolved IRI (e.g., base# + #Person)
+  // EXAMPLE: "http://example.org/onto#" + "#Person" → "http://example.org/onto#Person"
   if (iri.startsWith('#')) {
-    // Remove trailing # from base if present
     const base = xmlBase.endsWith('#') ? xmlBase.slice(0, -1) : xmlBase
     return base + iri
   }
 
   // Other relative forms - just prepend base
+  // WHY simple concatenation: Handles cases like relative paths or slash-separated IRIs
   return xmlBase + iri
 }
 
 /**
  * Parse OWL/XML (RDF/XML) into the internal Ontology model.
- * Parsing is intentionally defensive to handle variations in namespace usage.
- * Complies with W3C RDF Syntax Grammar: https://www.w3.org/TR/rdf-syntax-grammar/
+ * 
+ * WHY defensive parsing:
+ * OWL/XML documents can vary significantly in structure due to:
+ * - Different namespace prefixes (owl:, rdf:, or no prefix)
+ * - Different attribute naming conventions (rdf:about vs about)
+ * - Relative vs absolute IRIs
+ * - XML serialization quirks from different tools
+ * 
+ * Parsing is intentionally defensive to handle these variations gracefully
+ * rather than failing on minor syntactic differences.
+ * 
+ * HOW the parser handles variation:
+ * 1. Uses CSS selectors with fallbacks (e.g., 'Class, owl\\:Class') to match
+ *    elements regardless of namespace prefix usage
+ * 2. Uses getAttributeNS() helper to find attributes with or without prefixes
+ * 3. Resolves relative IRIs against xml:base per W3C RDF/XML spec
+ * 4. Falls back to IRI fragments for labels when rdfs:label is missing
+ * 
+ * STANDARDS COMPLIANCE:
+ * Follows W3C RDF Syntax Grammar: https://www.w3.org/TR/rdf-syntax-grammar/
+ * and OWL 2 XML Serialization: https://www.w3.org/TR/owl2-xml-serialization/
  */
 export function parseOWLXML(content: string): Ontology {
   /**
    * DOMParser provides a simple, browser-compatible XML parser.
-   * Invalid XML may result in partial or empty documents.
+   * WHY browser-native: No external dependencies, works in all modern browsers.
+   * CAVEAT: Invalid XML may result in partial documents rather than exceptions.
    */
   const parser = new DOMParser()
   const xmlDoc = parser.parseFromString(content, 'text/xml')
 
   // Check for parse errors
+  // WHY querySelector('parsererror'): DOMParser embeds error info as XML element
   const parseError = xmlDoc.querySelector('parsererror')
   if (parseError) {
     throw new Error(`Invalid XML: ${parseError.textContent}`)
@@ -687,21 +723,38 @@ export function parseRDFXML(content: string): Ontology {
 
 /**
  * Parse Turtle using a minimal, line-oriented approach.
- * This supports only basic class and property declarations.
+ * 
+ * WHAT: Turtle (Terse RDF Triple Language) is a human-friendly RDF serialization format
+ * designed to be more readable than XML-based formats.
+ * 
+ * WHY line-oriented parsing:
+ * Full Turtle parsing requires complex grammar handling (multi-line triples, blank nodes,
+ * collections, nested structures). For ProtegeDesk's import feature, we implement a
+ * simplified parser that handles the most common patterns used in ontology files.
+ * 
+ * LIMITATIONS of this implementation:
+ * - No blank node support (nodes without explicit IRIs)
+ * - No collection syntax ([...] or (...) structures)
+ * - No multi-line triple continuations (assumes ; ends on same line)
+ * - No prefix abbreviation resolution (relies on full IRIs)
+ * 
+ * WHY these limitations are acceptable:
+ * Most ontology tools (Protégé, TopBraid) export Turtle in a normalized format
+ * that uses explicit IRIs and one-triple-per-line structure, which this parser handles.
+ * 
+ * For production use with arbitrary Turtle files, consider integrating a full
+ * Turtle parser library like N3.js.
  */
 export function parseTurtle(content: string): Ontology {
   const classes = new Map<string, OntologyClass>()
   const properties = new Map<string, OntologyProperty>()
   const individuals = new Map<string, Individual>()
 
-  /**
-   * This parser is intentionally simplistic:
-   * - No blank nodes
-   * - No collections
-   * - No multi-line triples
-   */
   const lines = content.split('\n')
+  // WHY track currentSubject: Turtle allows multiple predicates for same subject
+  // e.g., <#Person> a owl:Class ; rdfs:label "Person" .
   let currentSubject: string | null = null
+  // WHY track currentType: Determines which Map to update when processing predicates
   let currentType: string | null = null
 
 
@@ -709,6 +762,8 @@ export function parseTurtle(content: string): Ontology {
   
 
     line = line.trim()
+    // Skip prefix declarations, comments, and empty lines
+    // WHY: These don't contribute to entity definitions in our simplified model
     if (line.startsWith('@prefix') || line.startsWith('#') || !line) {
       return
     }
@@ -783,9 +838,33 @@ export function parseTurtle(content: string): Ontology {
 
 /**
  * Parse JSON-LD into the internal Ontology model.
- * Handles both single-object and @graph-based documents.
+ * 
+ * WHAT: JSON-LD (JSON for Linking Data) combines JSON syntax with RDF semantics,
+ * allowing ontologies to be represented as standard JSON objects.
+ * 
+ * WHY handle both single-object and @graph formats:
+ * JSON-LD documents can structure entities in two ways:
+ * 1. Flat structure: root object IS the ontology, no @graph array
+ * 2. Graph structure: root has @graph array containing all entities
+ * 
+ * The @graph approach is preferred for complex ontologies because it cleanly
+ * separates ontology metadata from entity definitions.
+ * 
+ * HOW parsing works:
+ * 1. Parse JSON string into JavaScript object
+ * 2. Normalize to array (treat single object as 1-element @graph)
+ * 3. Iterate entities, dispatching by @type to appropriate handler
+ * 4. Extract relationships using helper extractIds() for uniform handling
+ * 
+ * WHY extractIds helper:
+ * JSON-LD allows values to be:
+ * - Single string: "rdfs:domain": "#Person"
+ * - Single object: "rdfs:domain": { "@id": "#Person" }
+ * - Array of either: "rdfs:domain": ["#Person", { "@id": "#Organization" }]
+ * 
+ * extractIds() normalizes all three forms into a string array for consistent processing.
  */
-  export function parseJSONLD(content: string): Ontology {
+export function parseJSONLD(content: string): Ontology {
   const data: unknown = JSON.parse(content)
 
   const classes = new Map<string, OntologyClass>()
@@ -797,6 +876,7 @@ export function parseTurtle(content: string): Ontology {
   }
 
   const root = data as Record<string, unknown>
+  // WHY normalize to array: Allows uniform iteration regardless of document structure
   const graph = Array.isArray(root['@graph']) ? root['@graph'] : [root]
 
   graph.forEach((item: unknown): void => {
@@ -857,6 +937,13 @@ export function parseTurtle(content: string): Ontology {
         id.split('/').pop() ??
         id
 
+      // WHY complex extractIds helper:
+      // JSON-LD spec allows property values in multiple forms for flexibility.
+      // This helper normalizes all variations into a consistent string[] for processing.
+      // EXAMPLE inputs it handles:
+      //   "rdfs:domain": "#Person"                    → ["#Person"]
+      //   "rdfs:domain": { "@id": "#Person" }         → ["#Person"]
+      //   "rdfs:domain": ["#Person", "#Organization"] → ["#Person", "#Organization"]
       const extractIds = (value?: JSONLDValue): string[] =>
         Array.isArray(value)
           ? value

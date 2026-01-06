@@ -367,7 +367,18 @@ export class OntologySearch {
   }
 
   /**
-   * Score a single field against the query
+   * Score a single field against the query using a hierarchical matching strategy.
+   * 
+   * WHY this scoring hierarchy:
+   * - Exact matches are most valuable (10x weight) because they indicate precise intent
+   * - Prefix matches (5x weight) are better than substring matches because they suggest
+   *   the user is typing the beginning of a term (common in autocomplete scenarios)
+   * - Substring matches (2x weight) catch partial matches anywhere in the field
+   * - Fuzzy matches (0.7-1.0x weight) handle typos but only above 70% similarity
+   *   to avoid false positives from unrelated terms
+   * 
+   * The baseWeight parameter allows different fields to have different importance
+   * (e.g., name matches are more important than description matches).
    */
   private scoreField(
     fieldValue: string,
@@ -379,21 +390,28 @@ export class OntologySearch {
     const normalizedQuery = query
 
     // Exact match (highest score)
+    // WHY 10x multiplier: Perfect match indicates the user knows exactly what they want
     if (normalizedField === normalizedQuery) {
       return baseWeight * 10
     }
 
     // Starts with (high score)
+    // WHY 5x multiplier: Prefix matches are common in incremental search (autocomplete)
+    // and indicate the user is typing the term from the beginning
     if (normalizedField.startsWith(normalizedQuery)) {
       return baseWeight * 5
     }
 
     // Contains (medium score)
+    // WHY 2x multiplier: Substring matches are useful but less precise than prefix matches
+    // They catch acronyms, word fragments, and partial terms
     if (normalizedField.includes(normalizedQuery)) {
       return baseWeight * 2
     }
 
     // Fuzzy match (if enabled)
+    // WHY 0.7 threshold: Below 70% similarity, matches become unreliable and confusing
+    // This catches typos ("Peson" → "Person") while avoiding unrelated terms
     if (options.fuzzyMatch) {
       const fuzzyScore = this.fuzzyScore(normalizedField, normalizedQuery)
       if (fuzzyScore > 0.7) {
@@ -414,33 +432,62 @@ export class OntologySearch {
   }
 
   /**
-   * Calculate Levenshtein distance between two strings
+   * Calculate Levenshtein distance (edit distance) between two strings.
+   * 
+   * WHAT: Measures the minimum number of single-character edits (insertions,
+   * deletions, substitutions) required to change one string into another.
+   * 
+   * WHY use dynamic programming:
+   * The naive recursive approach has exponential time complexity O(3^n).
+   * Dynamic programming reduces this to O(m*n) by storing intermediate results
+   * in a matrix, where matrix[i][j] represents the edit distance between
+   * the first i characters of str2 and the first j characters of str1.
+   * 
+   * HOW it works:
+   * 1. Initialize first row/column with incremental values (base cases)
+   * 2. For each cell, if characters match, copy diagonal value (no edit needed)
+   * 3. If characters differ, take minimum of:
+   *    - matrix[i-1][j-1] + 1 (substitution)
+   *    - matrix[i][j-1] + 1   (insertion)
+   *    - matrix[i-1][j] + 1   (deletion)
+   * 4. Bottom-right cell contains the final edit distance
    */
   private levenshteinDistance(str1: string, str2: string): number {
     const matrix: number[][] = []
 
+    // Initialize first column: converting empty string to str2 prefix
+    // requires i insertions (WHY: each character in str2 must be inserted)
     for (let i = 0; i <= str2.length; i++) {
       matrix[i] = [i]
     }
 
+    // Initialize first row: converting empty string to str1 prefix
+    // requires j insertions (WHY: each character in str1 must be inserted)
     for (let j = 0; j <= str1.length; j++) {
       matrix[0][j] = j
     }
 
+    // Fill the matrix using dynamic programming
     for (let i = 1; i <= str2.length; i++) {
       for (let j = 1; j <= str1.length; j++) {
         if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+          // Characters match: no edit needed, copy diagonal value
+          // WHY: if current characters are identical, the distance is the same
+          // as the distance between the strings without these characters
           matrix[i][j] = matrix[i - 1][j - 1]
         } else {
+          // Characters differ: find minimum cost operation
+          // WHY take minimum: we want the cheapest path (fewest edits)
           matrix[i][j] = Math.min(
-            matrix[i - 1][j - 1] + 1,
-            matrix[i][j - 1] + 1,
-            matrix[i - 1][j] + 1
+            matrix[i - 1][j - 1] + 1, // Substitution: replace str2[i-1] with str1[j-1]
+            matrix[i][j - 1] + 1,     // Insertion: add str1[j-1] to str2
+            matrix[i - 1][j] + 1      // Deletion: remove str2[i-1]
           )
         }
       }
     }
 
+    // Bottom-right cell contains the minimum edit distance
     return matrix[str2.length][str1.length]
   }
 
