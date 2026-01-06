@@ -75,3 +75,15 @@ export type OntologyStats = {
   individualCount: number
   axiomCount: number
 }
+
+export interface IndividualItemProps {
+  individual: Individual
+  isSelected: boolean
+  onSelect: (id: string) => void
+}
+
+export interface PropertyItemProps {
+  property: OntologyProperty
+  isSelected: boolean
+  onSelect: (id: string) => void
+}

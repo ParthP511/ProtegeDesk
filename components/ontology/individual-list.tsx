@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { Plus, Search, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -8,12 +8,67 @@ import { Badge } from '@/components/ui/badge'
 import { useOntology } from '@/lib/ontology/context'
 import { cn } from '@/lib/utils'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { IndividualItemProps } from '@/lib/ontology/types'
+
+const IndividualItem = React.memo(function IndividualItem({
+  individual,
+  isSelected,
+  onSelect,
+}: IndividualItemProps) {
+  return (
+    <div
+      onClick={() => onSelect(individual.id)}
+      className={cn(
+        'hover:bg-accent group flex cursor-pointer items-center gap-2 rounded p-2 text-sm',
+        isSelected && 'bg-primary/20 text-primary'
+      )}
+    >
+      <User className="h-4 w-4 flex-shrink-0" />
+
+      <div className="min-w-0 flex-1">
+        <div className="truncate font-medium">{individual.label || individual.name}</div>
+
+        {individual.types.length > 0 && (
+          <div className="text-muted-foreground flex flex-wrap gap-1 text-xs">
+            {individual.types.slice(0, 2).map((type, idx) => (
+              <span key={idx} className="truncate">
+                {type}
+                {idx < Math.min(individual.types.length, 2) - 1 && ','}
+              </span>
+            ))}
+            {individual.types.length > 2 && (
+              <span className="text-muted-foreground">+{individual.types.length - 2}</span>
+            )}
+          </div>
+        )}
+      </div>
+
+      {individual.propertyAssertions.length > 0 && (
+        <Badge variant="secondary" className="ml-auto text-xs">
+          {individual.propertyAssertions.length}
+        </Badge>
+      )}
+    </div>
+  )
+})
+
+IndividualItem.displayName = 'IndividualItem'
 
 export function IndividualList() {
-  const { ontology, selectedIndividual, selectIndividual, selectClass, selectProperty } = useOntology()
+  const { ontology, selectedIndividual, selectIndividual, selectClass, selectProperty } =
+    useOntology()
   const [searchQuery, setSearchQuery] = useState('')
 
   const individuals = Array.from(ontology?.individuals.values() || [])
+
+  const handleSelectIndividual = useCallback(
+    (id: string) => {
+      selectClass(null)
+      selectProperty(null)
+      selectIndividual(id)
+    },
+    [selectClass, selectProperty, selectIndividual]
+  )
 
   // Debug logging when individuals change
   useEffect(() => {
@@ -23,7 +78,7 @@ export function IndividualList() {
     })
   }, [individuals])
 
-  const filterIndividuals = () => {
+  const filterIndividuals = useMemo(() => {
     if (!searchQuery) {
       return individuals
     }
@@ -33,7 +88,7 @@ export function IndividualList() {
         ind.label?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         ind.types.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()))
     )
-  }
+  }, [individuals, searchQuery])
 
   const filteredIndividuals = filterIndividuals()
 
@@ -49,47 +104,6 @@ export function IndividualList() {
     },
     {} as Record<string, typeof individuals>
   )
-
-  const IndividualItem = ({ individual }: { individual: (typeof individuals)[0] }) => {
-    const isSelected = selectedIndividual?.id === individual.id
-    return (
-      <div
-        onClick={() => {
-          // Clear other selections to ensure only the individual is selected
-          selectClass(null)
-          selectProperty(null)
-          selectIndividual(individual.id)
-        }}
-        className={cn(
-          'hover:bg-accent group flex cursor-pointer items-center gap-2 rounded p-2 text-sm',
-          isSelected && 'bg-primary/20 text-primary'
-        )}
-      >
-        <User className="h-4 w-4 flex-shrink-0" />
-        <div className="min-w-0 flex-1">
-          <div className="truncate font-medium">{individual.label || individual.name}</div>
-          {individual.types.length > 0 && (
-            <div className="text-muted-foreground flex flex-wrap gap-1 text-xs">
-              {individual.types.slice(0, 2).map((type, idx) => (
-                <span key={idx} className="truncate">
-                  {type}
-                  {idx < Math.min(individual.types.length, 2) - 1 && ','}
-                </span>
-              ))}
-              {individual.types.length > 2 && (
-                <span className="text-muted-foreground">+{individual.types.length - 2}</span>
-              )}
-            </div>
-          )}
-        </div>
-        {individual.propertyAssertions.length > 0 && (
-          <Badge variant="secondary" className="ml-auto text-xs">
-            {individual.propertyAssertions.length}
-          </Badge>
-        )}
-      </div>
-    )
-  }
 
   return (
     <div className="flex h-full flex-col">
@@ -126,7 +140,12 @@ export function IndividualList() {
                 </div>
                 <div className="space-y-1">
                   {inds.map(individual => (
-                    <IndividualItem key={individual.id} individual={individual} />
+                    <IndividualItem
+                      key={individual.id}
+                      individual={individual}
+                      isSelected={selectedIndividual?.id === individual.id}
+                      onSelect={handleSelectIndividual}
+                    />
                   ))}
                 </div>
               </div>
