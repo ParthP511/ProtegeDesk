@@ -120,7 +120,7 @@ export function OntologyProvider({ children }: { children: React.ReactNode }): J
       }
       const classes = new Map(prev.classes)
       classes.set(owlClass.id, owlClass)
-      return { ...prev, classes }
+      return { ...prev, classes, lastModified: new Date() }
     })
   }, [])
 
@@ -131,7 +131,7 @@ export function OntologyProvider({ children }: { children: React.ReactNode }): J
       }
       const properties = new Map(prev.properties)
       properties.set(property.id, property)
-      return { ...prev, properties }
+      return { ...prev, properties, lastModified: new Date() }
     })
   }, [])
 
@@ -142,7 +142,7 @@ export function OntologyProvider({ children }: { children: React.ReactNode }): J
       }
       const individuals = new Map(prev.individuals)
       individuals.set(individual.id, individual)
-      return { ...prev, individuals }
+      return { ...prev, individuals, lastModified: new Date() }
     })
   }, [])
 
@@ -162,7 +162,7 @@ export function OntologyProvider({ children }: { children: React.ReactNode }): J
       if (existing) {
         classes.set(classId, { ...existing, ...updates })
       }
-      return { ...prev, classes }
+      return { ...prev, classes, lastModified: new Date() }
     })
   }, [])
 
@@ -176,7 +176,7 @@ export function OntologyProvider({ children }: { children: React.ReactNode }): J
       if (existing) {
         properties.set(propertyId, { ...existing, ...updates })
       }
-      return { ...prev, properties }
+      return { ...prev, properties, lastModified: new Date() }
     })
   }, [])
 
@@ -194,7 +194,7 @@ export function OntologyProvider({ children }: { children: React.ReactNode }): J
       }
       const classes = new Map(prev.classes)
       classes.delete(classId)
-      return { ...prev, classes }
+      return { ...prev, classes, lastModified: new Date() }
     })
   }, [])
 
@@ -205,7 +205,7 @@ export function OntologyProvider({ children }: { children: React.ReactNode }): J
       }
       const properties = new Map(prev.properties)
       properties.delete(propertyId)
-      return { ...prev, properties }
+      return { ...prev, properties, lastModified: new Date() }
     })
   }, [])
 
@@ -219,7 +219,7 @@ export function OntologyProvider({ children }: { children: React.ReactNode }): J
       if (existing) {
         individuals.set(individualId, { ...existing, ...updates })
       }
-      return { ...prev, individuals }
+      return { ...prev, individuals, lastModified: new Date() }
     })
   }, [])
 
@@ -230,7 +230,7 @@ export function OntologyProvider({ children }: { children: React.ReactNode }): J
       }
       const individuals = new Map(prev.individuals)
       individuals.delete(individualId)
-      return { ...prev, individuals }
+      return { ...prev, individuals, lastModified: new Date() }
     })
   }, [])
 

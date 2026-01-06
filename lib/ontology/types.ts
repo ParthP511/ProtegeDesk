@@ -67,6 +67,7 @@ export type Ontology = {
   properties: Map<string, OntologyProperty>
   individuals: Map<string, Individual>
   annotations: Annotation[]
+  lastModified?: Date
 }
 
 export type OntologyStats = {
