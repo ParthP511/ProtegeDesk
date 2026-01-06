@@ -19,20 +19,19 @@ import { Button } from '@/components/ui/button'
 import { Copy } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { useCopyToClipboard } from '@/hooks/copy-to-clipboard'
+import { OntologyProperty } from '@/lib/ontology/types'
 
-export function PropertyDetails() {
+interface PropertyDetailsProps {
+  isModalView?: boolean
+  property?: OntologyProperty
+}
+
+export function PropertyDetails({ isModalView, property }: PropertyDetailsProps) {
   const { selectedProperty } = useOntology()
   const { toast } = useToast()
   const { copy, copied } = useCopyToClipboard('')
 
-  if (!selectedProperty) {
-    return (
-      <div className="text-muted-foreground flex h-full items-center justify-center text-sm">
-        Select a property to view details
-      </div>
-    )
-  }
-
+  
   const characteristics = [
     { id: 'Functional', label: 'Functional' },
     { id: 'InverseFunctional', label: 'Inverse Functional' },
@@ -42,6 +41,67 @@ export function PropertyDetails() {
     { id: 'Reflexive', label: 'Reflexive' },
     { id: 'Irreflexive', label: 'Irreflexive' },
   ]
+
+  if (isModalView) {
+    return (
+      property && <ScrollArea className="h-full p-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Property Info</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm">
+            <div className="flex items-center justify-between">
+              <div><b>Name:</b> {property.name}</div>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-6 w-6"
+                onClick={async () => {
+                  const success = await copy(property?.id)
+                  toast({
+                    title: success ? 'Copied' : 'Copy failed',
+                    description: success ? 'Property IRI copied.' : undefined,
+                    variant: success ? undefined : 'destructive',
+                  })
+                }}
+              >
+                <Copy className="h-3 w-3" />
+              </Button>
+            </div>
+
+            <div>
+              <b>Domain:</b>{' '}
+              {property.domain.length > 0
+                ? property.domain.join(', ')
+                : '-'}
+            </div>
+
+            <div>
+              <b>Range:</b>{' '}
+              {property.range.length > 0
+                ? property.range.join(', ')
+                : '-'}
+            </div>
+            <div>
+              <b>Characteristics:</b>{' '}
+              {characteristics
+                .filter(c => property.characteristics.includes(c.id as any))
+                .map(c => c.label)
+                .join(', ') || '-'}
+            </div>
+          </CardContent>
+        </Card>
+      </ScrollArea>
+    )
+  }
+  
+  if (!selectedProperty) {
+    return (
+      <div className="text-muted-foreground flex h-full items-center justify-center text-sm">
+        Select a property to view details
+      </div>
+    )
+  }
 
   return (
     <ScrollArea className="h-full">

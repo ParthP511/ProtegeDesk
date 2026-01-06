@@ -44,6 +44,7 @@ import {
 } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
 import { ClassDetails } from './class-details'
+import { PropertyDetails } from './property-details'
 
 type Node = {
   id: string
@@ -675,6 +676,8 @@ export function GraphView() {
           {selectedNodeData && selectedNodeData.type === 'class' && 
           <ClassDetails isModalView={true}/>}
 
+          {selectedNodeData && selectedNodeData.type === 'property' &&
+          <PropertyDetails isModalView={true} property={selectedNodeData.data}/>}
           {/* {selectedNodeData && selectedNodeData?.type === 'class' && (
             <div className="space-y-3 text-sm">
               <div>
