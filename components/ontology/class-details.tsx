@@ -21,6 +21,7 @@ import { Copy, ChevronRight, Home, Plus } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
 import { useCopyToClipboard } from '@/hooks/copy-to-clipboard'
+import { Badge } from '../ui/badge'
 
 interface ClassElementItemProps {
   id: string
@@ -109,7 +110,10 @@ const SectionHeader: React.FC<SectionHeaderProps> = React.memo(({ title, onAdd, 
 ))
 SectionHeader.displayName = 'SectionHeader'
 
-export function ClassDetails() {
+interface ClassDetailsProps {
+  isModalView?: boolean
+}
+export function ClassDetails({ isModalView }: ClassDetailsProps) {
   const { selectedClass, ontology, selectClass } = useOntology()
   const { toast } = useToast()
   const [selectedElement, setSelectedElement] = useState<string | null>(null)
@@ -173,6 +177,32 @@ export function ClassDetails() {
       <div className="text-muted-foreground flex h-full items-center justify-center text-sm">
         Select a class to view details
       </div>
+    )
+  }
+
+  if (isModalView) {
+    // Lightweight modal view with selected details
+    return (
+      <ScrollArea className="h-full p-4">
+        {/* Basic Class Info */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Class Info</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm">
+            <div><b>Name:</b> {selectedClass.name}</div>
+            <div><b>Label:</b> {selectedClass.label || '-'}</div>
+            <div><b>Description:</b> {selectedClass.description || '-'}</div>
+            <div>
+              <b>Superclasses:</b>{' '}
+              {selectedClass.superClasses.length > 0
+                ? selectedClass.superClasses.join(', ')
+                : '-'}
+            </div>
+            <div><b>Instance Count:</b> {instances.length}</div>
+          </CardContent>
+        </Card>
+      </ScrollArea>
     )
   }
 

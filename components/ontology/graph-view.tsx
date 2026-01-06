@@ -43,6 +43,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
+import { ClassDetails } from './class-details'
 
 type Node = {
   id: string
@@ -671,7 +672,10 @@ export function GraphView() {
             </DialogTitle>
           </DialogHeader>
 
-          {selectedNodeData && selectedNodeData?.type === 'class' && (
+          {selectedNodeData && selectedNodeData.type === 'class' && 
+          <ClassDetails isModalView={true}/>}
+
+          {/* {selectedNodeData && selectedNodeData?.type === 'class' && (
             <div className="space-y-3 text-sm">
               <div>
                 <span className="text-muted-foreground">Label:</span>{' '}
@@ -736,7 +740,7 @@ export function GraphView() {
                 </div>
               </div>
             </div>
-          )}
+          )} */}
         </DialogContent>
       </Dialog>}
     </div>
