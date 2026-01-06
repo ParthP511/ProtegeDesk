@@ -67,18 +67,46 @@ type Edge = {
   color: string
 }
 
+/**
+ * Force-directed graph layout algorithm implementing a physics simulation.
+ * 
+ * WHAT: Simulates physical forces to automatically arrange nodes in a visually pleasing layout.
+ * 
+ * WHY use force-directed layout:
+ * - Self-organizing: no manual positioning required for complex ontologies
+ * - Reveals structure: connected nodes cluster together, hierarchies emerge naturally
+ * - Aesthetic: tends to minimize edge crossings and distribute nodes evenly
+ * 
+ * HOW it works:
+ * 1. Repulsion forces push all nodes apart (prevents overlapping)
+ * 2. Attraction forces pull connected nodes together (keeps relationships visible)
+ * 3. Damping gradually reduces velocity (allows the system to stabilize)
+ * 4. Iterative: runs for a fixed number of frames until equilibrium is reached
+ * 
+ * Based on the Fruchterman-Reingold algorithm commonly used in graph visualization.
+ */
 function applyForces(nodes: Node[], edges: Edge[]) {
-  // Repulsion between all nodes
+  // PHASE 1: Apply repulsion forces between ALL node pairs
+  // WHY: Prevents nodes from overlapping and creates visual separation
+  // TECHNIQUE: Inverse square law (force ∝ 1/distance²) mimics electrical repulsion
   for (let i = 0; i < nodes.length; i++) {
     for (let j = i + 1; j < nodes.length; j++) {
       const dx = nodes[j].x - nodes[i].x
       const dy = nodes[j].y - nodes[i].y
+      // WHY "|| 1": Prevents division by zero when nodes overlap exactly
       const distance = Math.sqrt(dx * dx + dy * dy) || 1
+      
+      // WHY inverse square: Stronger repulsion at close range, weaker at distance
+      // This creates natural spacing without pushing distant nodes unnecessarily
       const force = REPULSION_STRENGTH / (distance * distance)
 
+      // Convert force magnitude to directional force components
+      // WHY normalize: (dx/distance) gives unit vector direction
       const fx = (dx / distance) * force
       const fy = (dy / distance) * force
 
+      // Apply equal and opposite forces (Newton's third law)
+      // WHY opposite signs: node i pushed away (-), node j pushed away (+)
       nodes[i].vx -= fx
       nodes[i].vy -= fy
       nodes[j].vx += fx
@@ -86,7 +114,9 @@ function applyForces(nodes: Node[], edges: Edge[]) {
     }
   }
 
-  // Attraction along edges
+  // PHASE 2: Apply attraction forces along edges (relationships)
+  // WHY: Pulls related nodes together to show semantic connections
+  // TECHNIQUE: Spring force (force ∝ distance) like a stretched elastic band
   edges.forEach(edge => {
     const fromNode = nodes.find(n => n.id === edge.from)
     const toNode = nodes.find(n => n.id === edge.to)
@@ -96,10 +126,14 @@ function applyForces(nodes: Node[], edges: Edge[]) {
       const dy = toNode.y - fromNode.y
       const distance = Math.sqrt(dx * dx + dy * dy) || 1
 
+      // WHY linear force (not inverse square): Attraction grows stronger with distance
+      // This creates a "spring" effect that pulls connected nodes to an optimal distance
       const force = distance * ATTRACTION_STRENGTH
       const fx = (dx / distance) * force
       const fy = (dy / distance) * force
 
+      // WHY opposite velocities: fromNode pulled toward toNode, toNode pulled toward fromNode
+      // This mutual attraction brings them closer together
       fromNode.vx += fx
       fromNode.vy += fy
       toNode.vx -= fx
@@ -107,7 +141,9 @@ function applyForces(nodes: Node[], edges: Edge[]) {
     }
   })
 
-  // Apply velocity with damping
+  // PHASE 3: Apply velocity with damping to achieve stable layout
+  // WHY damping: Without it, nodes would oscillate forever. Damping simulates friction
+  // that gradually dissipates kinetic energy, allowing the layout to stabilize.
   nodes.forEach(node => {
     node.x += node.vx
     node.y += node.vy
