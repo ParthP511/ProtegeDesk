@@ -2,7 +2,7 @@
 
 import type React from 'react'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useOntology } from '@/lib/ontology/context'
 import { Button } from '@/components/ui/button'
 import { ZoomIn, ZoomOut, Maximize, Download, RotateCcw } from 'lucide-react'
@@ -35,6 +35,14 @@ import {
   FIT_VIEW_PADDING,
   MAX_FIT_ZOOM,
 } from '../../lib/constants'
+
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Badge } from '@/components/ui/badge'
 
 type Node = {
   id: string
@@ -118,6 +126,39 @@ export function GraphView() {
   const [edges, setEdges] = useState<Edge[]>([])
   const [selectedNode, setSelectedNode] = useState<string | null>(null)
   const [isSimulating, setIsSimulating] = useState(true)
+
+  const selectedNodeData = useMemo(() => {
+    if(!ontology || !selectedNode)  return null;
+    
+    const classData = ontology.classes.get(selectedNode)
+    if(ontology.classes.has(selectedNode)) {
+      return {
+        id: selectedNode,
+        type: 'class' as const,
+        data: classData,
+      }
+    }
+
+    const propertyData = ontology.properties.get(selectedNode)
+    if(ontology.properties.has(selectedNode)) {
+      return {
+        id: selectedNode,
+        type: 'property' as const,
+        data: propertyData,
+      }
+    }
+
+    const individualData = ontology.individuals.get(selectedNode)
+    if(ontology.individuals.has(selectedNode)) {
+      return {
+        id: selectedNode,
+        type: 'individual' as const,
+        data: individualData,
+      }
+    }
+    
+    return null
+  }, [ontology, selectedNode])
 
   useEffect(() => {
     if (!ontology) {
@@ -617,6 +658,87 @@ export function GraphView() {
           </div>
         )}
       </div>
+        {selectedNodeData && <Dialog
+          open={!!selectedNodeData}
+          onOpenChange={open => {
+            if (!open) setSelectedNode(null)
+          }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 capitalize">
+              {selectedNodeData?.type}
+              <Badge variant="outline">{selectedNodeData?.id}</Badge>
+            </DialogTitle>
+          </DialogHeader>
+
+          {selectedNodeData && selectedNodeData?.type === 'class' && (
+            <div className="space-y-3 text-sm">
+              <div>
+                <span className="text-muted-foreground">Label:</span>{' '}
+                {selectedNodeData.data && (selectedNodeData.data.label || selectedNodeData.data.name)}
+              </div>
+
+              <div>
+                <span className="text-muted-foreground">Super Classes:</span>
+                <div className="mt-1 flex flex-wrap gap-1">
+                  {selectedNodeData.data && selectedNodeData.data.superClasses.map((sc: string) => (
+                    <Badge key={sc} variant="secondary">
+                      {ontology?.classes.get(sc)?.name || sc}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {selectedNodeData?.type === 'property' && (
+            <div className="space-y-3 text-sm">
+              <div>
+                <span className="text-muted-foreground">Type:</span>{' '}
+                {selectedNodeData.data && selectedNodeData.data.type}
+              </div>
+
+              <div>
+                <span className="text-muted-foreground">Domain:</span>
+                <div className="mt-1 flex flex-wrap gap-1">
+                  {selectedNodeData.data && selectedNodeData.data.domain.map((d: string) => (
+                    <Badge key={d} variant="secondary">
+                      {ontology?.classes.get(d)?.name || d}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              {selectedNodeData.data && selectedNodeData.data.range && (
+                <div>
+                  <span className="text-muted-foreground">Range:</span>{' '}
+                  {selectedNodeData.data.range}
+                </div>
+              )}
+            </div>
+          )}
+
+          {selectedNodeData.data && selectedNodeData?.type === 'individual' && (
+            <div className="space-y-3 text-sm">
+              <div>
+                <span className="text-muted-foreground">Label:</span>{' '}
+                {selectedNodeData.data.label || selectedNodeData.data.name}
+              </div>
+
+              <div>
+                <span className="text-muted-foreground">Types:</span>
+                <div className="mt-1 flex flex-wrap gap-1">
+                  {selectedNodeData.data.types.map((t: string) => (
+                    <Badge key={t} variant="secondary">
+                      {ontology?.classes.get(t)?.name || t}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>}
     </div>
   )
 }
