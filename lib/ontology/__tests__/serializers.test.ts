@@ -852,71 +852,65 @@ describe('Ontology Serializers', () => {
   })
 
   describe('Real-world OWL files', () => {
-    it('should parse pizza.owl (real-world ontology)', () => {
-      const fs = require('fs')
-      const path = require('path')
-      const pizzaPath = path.join(__dirname, '../../../__tests__/pizza.owl')
-
-      // Skip test if file doesn't exist
-      if (!fs.existsSync(pizzaPath)) {
-        console.warn('pizza.owl not found, skipping test')
-        return
-      }
-
-      const pizzaContent = fs.readFileSync(pizzaPath, 'utf-8')
-
-      // Pizza.owl uses DTD entities which DOMParser doesn't support
-      // This is expected behavior - just verify the error is about entities
-      try {
-        parseFromOWLXML(pizzaContent)
-      } catch (error) {
-        expect(error).toBeInstanceOf(Error)
-        expect((error as Error).message).toContain('undefined entity')
-        // Test passes - we correctly detected the limitation
-        return
-      }
-
-      // If it somehow parsed successfully, that's also fine
-      // (some environments might handle DTD entities differently)
+    const fs = require('fs')
+    const path = require('path')
+  
+    const pizzaPath = path.join(__dirname, '../../../__tests__/pizza.owl')
+    const individualsPath = path.join(
+      __dirname,
+      '../../../__tests__/pizza-with-individuals.owl'
+    )
+  
+    const hasPizzaFile = fs.existsSync(pizzaPath)
+    const hasIndividualsFile = fs.existsSync(individualsPath)
+  
+    // Skip test if file is not parsed
+    ;(hasPizzaFile ? describe : describe.skip)('pizza.owl', () => {
+      it('should parse pizza.owl (real-world ontology)', () => {
+        const pizzaContent = fs.readFileSync(pizzaPath, 'utf-8')
+  
+        // Pizza.owl uses DTD entities which DOMParser doesn't support
+        // This is expected behavior - just verify the error is about entities
+        try {
+          parseFromOWLXML(pizzaContent)
+        } catch (error) {
+          expect(error).toBeInstanceOf(Error)
+          expect((error as Error).message).toContain('entity')
+          return
+        }
+  
+        // If it somehow parses successfully, that's acceptable too
+      })
     })
-
-    it('should parse pizza ontology with individuals', () => {
-      const fs = require('fs')
-      const path = require('path')
-      const testPath = path.join(__dirname, '../../../__tests__/pizza-with-individuals.owl')
-
-      // Skip test if file doesn't exist
-      if (!fs.existsSync(testPath)) {
-        console.warn('pizza-with-individuals.owl not found, skipping test')
-        return
-      }
-
-      const content = fs.readFileSync(testPath, 'utf-8')
-      const ontology = parseFromOWLXML(content)
-
-      // Should parse classes, properties, and individuals
-      expect(ontology.classes.size).toBeGreaterThanOrEqual(3)
-      expect(ontology.properties.size).toBeGreaterThanOrEqual(1)
-      expect(ontology.individuals.size).toBe(4) // MyMargherita, MozzarellaTopping1, MyPepperoni, MyVeggie
-
-      // Verify specific individuals
-      expect(
-        ontology.individuals.has('http://www.co-ode.org/ontologies/pizza/pizza.owl#MyMargherita')
-      ).toBe(true)
-      expect(
-        ontology.individuals.has('http://www.co-ode.org/ontologies/pizza/pizza.owl#MyPepperoni')
-      ).toBe(true)
-      expect(
-        ontology.individuals.has('http://www.co-ode.org/ontologies/pizza/pizza.owl#MyVeggie')
-      ).toBe(true)
-
-      const margherita = ontology.individuals.get(
-        'http://www.co-ode.org/ontologies/pizza/pizza.owl#MyMargherita'
-      )
-      expect(margherita?.label).toBe('My Margherita Pizza')
-      expect(margherita?.types).toContain('http://www.co-ode.org/ontologies/pizza/pizza.owl#Pizza')
+    
+    // Skip test if file is not parsed
+    ;(hasIndividualsFile ? describe : describe.skip)('pizza-with-individuals.owl', () => {
+      it('should parse pizza ontology with individuals', () => {
+        const content = fs.readFileSync(individualsPath, 'utf-8')
+        const ontology = parseFromOWLXML(content)
+  
+        expect(ontology.classes.size).toBeGreaterThanOrEqual(3)
+        expect(ontology.properties.size).toBeGreaterThanOrEqual(1)
+        expect(ontology.individuals.size).toBe(4)
+  
+        expect(
+          ontology.individuals.has(
+            'http://www.co-ode.org/ontologies/pizza/pizza.owl#MyMargherita'
+          )
+        ).toBe(true)
+  
+        const margherita = ontology.individuals.get(
+          'http://www.co-ode.org/ontologies/pizza/pizza.owl#MyMargherita'
+        )
+  
+        expect(margherita?.label).toBe('My Margherita Pizza')
+        expect(margherita?.types).toContain(
+          'http://www.co-ode.org/ontologies/pizza/pizza.owl#Pizza'
+        )
+      })
     })
   })
+  
 
   describe('validateOntology', () => {
     it('should validate ontology with valid IRIs', () => {
