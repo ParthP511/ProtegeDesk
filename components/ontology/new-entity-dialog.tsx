@@ -23,9 +23,23 @@ import {
 import { Plus } from 'lucide-react'
 import { useOntology } from '@/lib/ontology/context'
 import { useToast } from '@/hooks/use-toast'
+import type { Ontology } from '@/lib/ontology/types'
+
+// Validate IRI format - accepts full IRIs or simple identifiers
+function isValidIRI(value: string): boolean {
+  const iriPattern = /^[a-zA-Z][a-zA-Z0-9+.-]*:\/\/[^\s]+$/;
+  return iriPattern.test(value) || /^[a-zA-Z_][a-zA-Z0-9_-]*$/.test(value);
+}
+
+// Check if ID already exists in the ontology
+function isDuplicate(id: string, ontology: Ontology): boolean {
+  return ontology.classes.has(id) ||
+         ontology.properties.has(id) ||
+         ontology.individuals.has(id);
+}
 
 export function NewEntityDialog() {
-  const { addClass, addProperty } = useOntology()
+  const { ontology, addClass, addProperty } = useOntology()
   const { toast } = useToast()
   const [open, setOpen] = useState(false)
   const [entityType, setEntityType] = useState<'class' | 'property'>('class')
@@ -38,10 +52,40 @@ export function NewEntityDialog() {
   )
 
   const handleCreate = () => {
-    if (!id || !name) {
+    // Validate required fields
+    if (!id.trim() || !name.trim()) {
       toast({
         title: 'Validation error',
         description: 'ID and Name are required',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    // Validate IRI format
+    if (!isValidIRI(id)) {
+      toast({
+        title: 'Invalid ID format',
+        description: 'ID must be a valid IRI or a simple identifier',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    // Check for duplicates
+    if (!ontology) {
+      toast({
+        title: 'Error',
+        description: 'Ontology not loaded',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    if (isDuplicate(id, ontology)) {
+      toast({
+        title: 'Duplicate ID',
+        description: `An entity with ID "${id}" already exists in the ontology`,
         variant: 'destructive',
       })
       return
