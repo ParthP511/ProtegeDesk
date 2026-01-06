@@ -230,12 +230,12 @@ npm run test:ci       # CI mode
 
 ### What's Tested
 
-- ⚙️ **Ontology reasoning** - Consistency, inference, validation (31 tests)
-- 🔄 **Data serialization** - JSON-LD, Turtle, OWL/XML (43 tests)
-- 📊 **State management** - Context operations, CRUD (23 tests)
-- 🏗️ **Data generation** - Sample data, validation (50 tests)
-- 🪝 **React hooks** - Toast management, lifecycle (26 tests)
-- 🛠️ **Utilities** - Helper functions (7 tests)
+- ⚙️ **Ontology reasoning** - Consistency, inference, validation
+- 🔄 **Data serialization** - JSON-LD, Turtle, OWL/XML
+- 📊 **State management** - Context operations, CRUD
+- 🏗️ **Data generation** - Sample data, validation
+- 🪝 **React hooks** - Toast management, lifecycle
+- 🛠️ **Utilities** - Helper functions
 
 ### Example
 
@@ -331,12 +331,17 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
   - Documented reasoning logic in core modules
   - URL copy functionality with toast notifications
   - Header component testing
+  - Modal dialogs for selected graph nodes (class, property, individual details)
+  - Copy to clipboard hook implementation
+  - ESLint magic numbers rule enforcement
+  - Test suite fixes for file parsing issues
 
 - **charulata871** - [@charulata871](https://github.com/charulata871)
   - Code refactoring and improved variable naming
   - ClassDetails component refactoring
   - Enhanced code quality and maintainability
   - Debug logging implementation
+  - Type safety improvements with explicit return type annotations
 
 - **SIVA** - [@NANI-31](https://github.com/NANI-31)
   - Enhanced graph visualization with zoom controls
@@ -348,6 +353,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **mostafakm78** - [@mostafakm78](https://github.com/mostafakm78)
   - Performance optimization with component memoization
   - Ontology list item component improvements
+
+- **sojukrishna** - [@sojukrishna](https://github.com/sojukrishna)
+  - Input validation for IRI format in NewEntityDialog
+
+- **Anoop-2024si96509** - [@Anoop-2024si96509](https://github.com/Anoop-2024si96509)
+  - Inline code comments for complex algorithms
 
 See [CONTRIBUTORS.md](CONTRIBUTORS.md) for the complete list and detailed contribution information.
 
