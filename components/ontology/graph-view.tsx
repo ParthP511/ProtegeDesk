@@ -41,6 +41,7 @@ import { Badge } from '@/components/ui/badge'
 import { ClassDetails } from './class-details'
 import { PropertyDetails } from './property-details'
 import { IndividualDetails } from './individual-details'
+import { NodeHoverCard } from './node-hover-card'
 
 type Node = {
   id: string
@@ -163,8 +164,6 @@ export function GraphView() {
   const [clickPosition, setClickPosition] = useState<{ x: number; y: number } | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false)
   const [hoveredNode, setHoveredNode] = useState<Node | null>(null)
-  const [mousePosition, setMousePosition] = useState<{ x: number; y: number } | null>(null)
-
 
   const selectedNodeData = useMemo(() => {
     if (!ontology || !selectedNode) {
@@ -404,15 +403,6 @@ export function GraphView() {
     })
 
     nodes.forEach(node => {
-      const isHovered = node.id === hoveredNode?.id
-
-      if (isHovered) {
-        ctx.beginPath()
-        ctx.arc(node.x, node.y, node.radius + 6, 0, 2 * Math.PI)
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)'
-        ctx.lineWidth = 2
-        ctx.stroke()
-      }
 
       const isSelected = node.id === selectedNode
 
@@ -522,7 +512,6 @@ export function GraphView() {
       }) ?? null
   
     setHoveredNode(node)
-    setMousePosition({ x: e.clientX, y: e.clientY })
   }
   
 
@@ -604,6 +593,19 @@ export function GraphView() {
       y: (-(minY + maxY) / 2) * newZoom,
     })
   }
+
+  const graphToScreen = (x: number, y: number) => {
+    if (!canvasRef.current) return null
+  
+    const rect = canvasRef.current.getBoundingClientRect()
+    const centerX = rect.width / 2
+    const centerY = rect.height / 2
+  
+    return {
+      x: centerX + offset.x + x * zoom,
+      y: centerY + offset.y + y * zoom,
+    }
+  }  
 
   const exportGraph = () => {
     const canvas = canvasRef.current
@@ -772,19 +774,20 @@ export function GraphView() {
           </DialogContent>
         </Dialog>
       )}
-      {hoveredNode && mousePosition && (
-        <div
-          className="pointer-events-none absolute z-50 rounded-md border bg-card px-3 py-2 text-xs shadow-lg"
-          style={{
-            left: mousePosition.x + 12,
-            top: mousePosition.y + 12,
-          }}
-        >
-          <div className="font-semibold">{hoveredNode.label}</div>
-          <div className="text-muted-foreground capitalize">{hoveredNode.type}</div>
-        </div>
-      )}
+      {hoveredNode && (() => {
+        const screenPos = graphToScreen(hoveredNode.x, hoveredNode.y)
+        if (!screenPos) return null
+
+        return (
+          <NodeHoverCard
+            node={hoveredNode}
+            style={{
+              left: screenPos.x,
+              top: screenPos.y - hoveredNode.radius - 12,
+            }}
+          />
+        )
+      })()}
     </div>
-    
   )
 }
