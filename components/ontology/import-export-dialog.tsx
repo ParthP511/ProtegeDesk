@@ -118,14 +118,6 @@ export function ImportExportDialog() {
       // Validate the imported ontology per W3C RDF/OWL standards
       const validationErrors = validateOntology(imported)
 
-      // Debug logging for imported ontology stats
-      console.log('[Import] Ontology stats:', {
-        name: imported.name,
-        classes: imported.classes.size,
-        properties: imported.properties.size,
-        individuals: imported.individuals.size,
-      })
-
       if (validationErrors.length > 0) {
         console.warn('[Import] Validation warnings:', validationErrors)
         toast({
