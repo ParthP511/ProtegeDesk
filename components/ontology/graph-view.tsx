@@ -164,7 +164,8 @@ export function GraphView() {
   const [clickPosition, setClickPosition] = useState<{ x: number; y: number } | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false)
   const [hoveredNode, setHoveredNode] = useState<Node | null>(null)
-
+  const hoverTimeoutRef = useRef<number | null>(null)
+  
   const selectedNodeData = useMemo(() => {
     if (!ontology || !selectedNode) {
       return null
@@ -511,8 +512,27 @@ export function GraphView() {
         return Math.sqrt(dx * dx + dy * dy) <= n.radius
       }) ?? null
   
-    setHoveredNode(node)
+    // If hovering the same node, do nothing
+    if (node?.id === hoveredNode?.id) return
+  
+    // Clear any pending hover
+    if (hoverTimeoutRef.current) {
+      window.clearTimeout(hoverTimeoutRef.current)
+      hoverTimeoutRef.current = null
+    }
+  
+    // Immediately clear tooltip if no node
+    if (!node) {
+      setHoveredNode(null)
+      return
+    }
+  
+    // Delay tooltip appearance
+    hoverTimeoutRef.current = window.setTimeout(() => {
+      setHoveredNode(node)
+    }, 300)
   }
+  
   
 
   const handleMouseUp = () => {
@@ -630,8 +650,12 @@ export function GraphView() {
         onMouseUp={handleMouseUp}
         onMouseLeave={() => {
           handleMouseUp()
+          if (hoverTimeoutRef.current) {
+            clearTimeout(hoverTimeoutRef.current)
+            hoverTimeoutRef.current = null
+          }
           setHoveredNode(null)
-        }}        
+        }}
         onClick={handleClick}
       />
       <div className="absolute top-4 right-4 flex flex-col gap-2">
