@@ -41,6 +41,7 @@ import { Badge } from '@/components/ui/badge'
 import { ClassDetails } from './class-details'
 import { PropertyDetails } from './property-details'
 import { IndividualDetails } from './individual-details'
+import { NodeHoverCard } from './node-hover-card'
 
 type Node = {
   id: string
@@ -162,7 +163,9 @@ export function GraphView() {
   const [isSimulating, setIsSimulating] = useState(true)
   const [clickPosition, setClickPosition] = useState<{ x: number; y: number } | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false)
-
+  const [hoveredNode, setHoveredNode] = useState<Node | null>(null)
+  const hoverTimeoutRef = useRef<number | null>(null)
+  
   const selectedNodeData = useMemo(() => {
     if (!ontology || !selectedNode) {
       return null
@@ -401,6 +404,7 @@ export function GraphView() {
     })
 
     nodes.forEach(node => {
+
       const isSelected = node.id === selectedNode
 
       // Draw selection highlight
@@ -440,7 +444,7 @@ export function GraphView() {
     })
 
     ctx.restore()
-  }, [nodes, edges, zoom, offset, selectedNode])
+  }, [nodes, edges, zoom, offset, selectedNode, hoveredNode])
 
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault()
@@ -483,14 +487,53 @@ export function GraphView() {
   }
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging) {
+    if (isDragging) {
+      setOffset({
+        x: e.clientX - dragStart.x,
+        y: e.clientY - dragStart.y,
+      })
       return
     }
-    setOffset({
-      x: e.clientX - dragStart.x,
-      y: e.clientY - dragStart.y,
-    })
+  
+    const canvas = canvasRef.current
+    if (!canvas) return
+  
+    const rect = canvas.getBoundingClientRect()
+    const centerX = rect.width / 2
+    const centerY = rect.height / 2
+  
+    const x = (e.clientX - rect.left - centerX - offset.x) / zoom
+    const y = (e.clientY - rect.top - centerY - offset.y) / zoom
+  
+    const node =
+      nodes.find(n => {
+        const dx = x - n.x
+        const dy = y - n.y
+        return Math.sqrt(dx * dx + dy * dy) <= n.radius
+      }) ?? null
+  
+    // If hovering the same node, do nothing
+    if (node?.id === hoveredNode?.id) return
+  
+    // Clear any pending hover
+    if (hoverTimeoutRef.current) {
+      window.clearTimeout(hoverTimeoutRef.current)
+      hoverTimeoutRef.current = null
+    }
+  
+    // Immediately clear tooltip if no node
+    if (!node) {
+      setHoveredNode(null)
+      return
+    }
+  
+    // Delay tooltip appearance
+    hoverTimeoutRef.current = window.setTimeout(() => {
+      setHoveredNode(node)
+    }, 300)
   }
+  
+  
 
   const handleMouseUp = () => {
     setIsDragging(false)
@@ -571,6 +614,19 @@ export function GraphView() {
     })
   }
 
+  const graphToScreen = (x: number, y: number) => {
+    if (!canvasRef.current) return null
+  
+    const rect = canvasRef.current.getBoundingClientRect()
+    const centerX = rect.width / 2
+    const centerY = rect.height / 2
+  
+    return {
+      x: centerX + offset.x + x * zoom,
+      y: centerY + offset.y + y * zoom,
+    }
+  }  
+
   const exportGraph = () => {
     const canvas = canvasRef.current
     if (!canvas) {
@@ -592,7 +648,14 @@ export function GraphView() {
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
+        onMouseLeave={() => {
+          handleMouseUp()
+          if (hoverTimeoutRef.current) {
+            clearTimeout(hoverTimeoutRef.current)
+            hoverTimeoutRef.current = null
+          }
+          setHoveredNode(null)
+        }}
         onClick={handleClick}
       />
       <div className="absolute top-4 right-4 flex flex-col gap-2">
@@ -735,6 +798,21 @@ export function GraphView() {
           </DialogContent>
         </Dialog>
       )}
+      {hoveredNode && (() => {
+        const screenPos = graphToScreen(hoveredNode.x, hoveredNode.y)
+        if (!screenPos) return null
+
+        return (
+          <NodeHoverCard
+            node={hoveredNode}
+            ontology={ontology}
+            style={{
+              left: screenPos.x,
+              top: screenPos.y - hoveredNode.radius - 12,
+            }}
+          />
+        )
+      })()}
     </div>
   )
 }
