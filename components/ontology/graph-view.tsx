@@ -162,6 +162,9 @@ export function GraphView() {
   const [isSimulating, setIsSimulating] = useState(true)
   const [clickPosition, setClickPosition] = useState<{ x: number; y: number } | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false)
+  const [hoveredNode, setHoveredNode] = useState<Node | null>(null)
+  const [mousePosition, setMousePosition] = useState<{ x: number; y: number } | null>(null)
+
 
   const selectedNodeData = useMemo(() => {
     if (!ontology || !selectedNode) {
@@ -401,6 +404,16 @@ export function GraphView() {
     })
 
     nodes.forEach(node => {
+      const isHovered = node.id === hoveredNode?.id
+
+      if (isHovered) {
+        ctx.beginPath()
+        ctx.arc(node.x, node.y, node.radius + 6, 0, 2 * Math.PI)
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)'
+        ctx.lineWidth = 2
+        ctx.stroke()
+      }
+
       const isSelected = node.id === selectedNode
 
       // Draw selection highlight
@@ -440,7 +453,7 @@ export function GraphView() {
     })
 
     ctx.restore()
-  }, [nodes, edges, zoom, offset, selectedNode])
+  }, [nodes, edges, zoom, offset, selectedNode, hoveredNode])
 
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault()
@@ -483,14 +496,35 @@ export function GraphView() {
   }
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging) {
+    if (isDragging) {
+      setOffset({
+        x: e.clientX - dragStart.x,
+        y: e.clientY - dragStart.y,
+      })
       return
     }
-    setOffset({
-      x: e.clientX - dragStart.x,
-      y: e.clientY - dragStart.y,
-    })
+  
+    const canvas = canvasRef.current
+    if (!canvas) return
+  
+    const rect = canvas.getBoundingClientRect()
+    const centerX = rect.width / 2
+    const centerY = rect.height / 2
+  
+    const x = (e.clientX - rect.left - centerX - offset.x) / zoom
+    const y = (e.clientY - rect.top - centerY - offset.y) / zoom
+  
+    const node =
+      nodes.find(n => {
+        const dx = x - n.x
+        const dy = y - n.y
+        return Math.sqrt(dx * dx + dy * dy) <= n.radius
+      }) ?? null
+  
+    setHoveredNode(node)
+    setMousePosition({ x: e.clientX, y: e.clientY })
   }
+  
 
   const handleMouseUp = () => {
     setIsDragging(false)
@@ -592,7 +626,10 @@ export function GraphView() {
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
+        onMouseLeave={() => {
+          handleMouseUp()
+          setHoveredNode(null)
+        }}        
         onClick={handleClick}
       />
       <div className="absolute top-4 right-4 flex flex-col gap-2">
@@ -735,6 +772,19 @@ export function GraphView() {
           </DialogContent>
         </Dialog>
       )}
+      {hoveredNode && mousePosition && (
+        <div
+          className="pointer-events-none absolute z-50 rounded-md border bg-card px-3 py-2 text-xs shadow-lg"
+          style={{
+            left: mousePosition.x + 12,
+            top: mousePosition.y + 12,
+          }}
+        >
+          <div className="font-semibold">{hoveredNode.label}</div>
+          <div className="text-muted-foreground capitalize">{hoveredNode.type}</div>
+        </div>
+      )}
     </div>
+    
   )
 }
