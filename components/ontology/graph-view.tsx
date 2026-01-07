@@ -805,6 +805,7 @@ export function GraphView() {
         return (
           <NodeHoverCard
             node={hoveredNode}
+            ontology={ontology}
             style={{
               left: screenPos.x,
               top: screenPos.y - hoveredNode.radius - 12,
