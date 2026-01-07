@@ -36,12 +36,7 @@ import {
   MAX_FIT_ZOOM,
 } from '../../lib/constants'
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
 import { ClassDetails } from './class-details'
 import { PropertyDetails } from './property-details'
@@ -69,20 +64,20 @@ type Edge = {
 
 /**
  * Force-directed graph layout algorithm implementing a physics simulation.
- * 
+ *
  * WHAT: Simulates physical forces to automatically arrange nodes in a visually pleasing layout.
- * 
+ *
  * WHY use force-directed layout:
  * - Self-organizing: no manual positioning required for complex ontologies
  * - Reveals structure: connected nodes cluster together, hierarchies emerge naturally
  * - Aesthetic: tends to minimize edge crossings and distribute nodes evenly
- * 
+ *
  * HOW it works:
  * 1. Repulsion forces push all nodes apart (prevents overlapping)
  * 2. Attraction forces pull connected nodes together (keeps relationships visible)
  * 3. Damping gradually reduces velocity (allows the system to stabilize)
  * 4. Iterative: runs for a fixed number of frames until equilibrium is reached
- * 
+ *
  * Based on the Fruchterman-Reingold algorithm commonly used in graph visualization.
  */
 function applyForces(nodes: Node[], edges: Edge[]) {
@@ -95,7 +90,7 @@ function applyForces(nodes: Node[], edges: Edge[]) {
       const dy = nodes[j].y - nodes[i].y
       // WHY "|| 1": Prevents division by zero when nodes overlap exactly
       const distance = Math.sqrt(dx * dx + dy * dy) || 1
-      
+
       // WHY inverse square: Stronger repulsion at close range, weaker at distance
       // This creates natural spacing without pushing distant nodes unnecessarily
       const force = REPULSION_STRENGTH / (distance * distance)
@@ -165,14 +160,16 @@ export function GraphView() {
   const [edges, setEdges] = useState<Edge[]>([])
   const [selectedNode, setSelectedNode] = useState<string | null>(null)
   const [isSimulating, setIsSimulating] = useState(true)
-  const [clickPosition, setClickPosition] = useState<{x: number; y: number } | null> (null)
+  const [clickPosition, setClickPosition] = useState<{ x: number; y: number } | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false)
 
   const selectedNodeData = useMemo(() => {
-    if(!ontology || !selectedNode)  return null;
-    
+    if (!ontology || !selectedNode) {
+      return null
+    }
+
     const classData = ontology.classes.get(selectedNode)
-    if(ontology.classes.has(selectedNode)) {
+    if (ontology.classes.has(selectedNode)) {
       return {
         id: selectedNode,
         type: 'class' as const,
@@ -181,7 +178,7 @@ export function GraphView() {
     }
 
     const propertyData = ontology.properties.get(selectedNode)
-    if(ontology.properties.has(selectedNode)) {
+    if (ontology.properties.has(selectedNode)) {
       return {
         id: selectedNode,
         type: 'property' as const,
@@ -190,14 +187,14 @@ export function GraphView() {
     }
 
     const individualData = ontology.individuals.get(selectedNode)
-    if(ontology.individuals.has(selectedNode)) {
+    if (ontology.individuals.has(selectedNode)) {
       return {
         id: selectedNode,
         type: 'individual' as const,
         data: individualData,
       }
     }
-    
+
     return null
   }, [ontology, selectedNode])
 
@@ -525,7 +522,7 @@ export function GraphView() {
       if (clickedNode.type === 'class') {
         selectClass(clickedNode.id)
       }
-      setClickPosition({x: e.clientX, y: e.clientY})
+      setClickPosition({ x: e.clientX, y: e.clientY })
     } else {
       setSelectedNode(null)
       setClickPosition(null)
@@ -702,37 +699,42 @@ export function GraphView() {
           </div>
         )}
       </div>
-        {selectedNodeData && clickPosition && <Dialog
-          open={isDialogOpen}
-          onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-md"
-        style={{
-          position: 'fixed',
-          top: clickPosition.y + 200,
-          left: clickPosition.x + 200,
-          maxWidth: '300px', 
-          overflow: 'auto',
-          borderRadius: '8px',       // optional, keeps corners rounded
-          backgroundColor: 'var(--card-background, #1c1c1c)', // ensure background is visible
-          boxShadow: '0 4px 16px rgba(0,0,0,0.3)', // optional for nicer look
-        }}>
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 capitalize">
-              {selectedNodeData?.type}
-              <Badge variant="outline">{selectedNodeData?.id}</Badge>
-            </DialogTitle>
-          </DialogHeader>
+      {selectedNodeData && clickPosition && (
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogContent
+            className="max-w-md"
+            style={{
+              position: 'fixed',
+              top: clickPosition.y + 200,
+              left: clickPosition.x + 200,
+              maxWidth: '300px',
+              overflow: 'auto',
+              borderRadius: '8px', // optional, keeps corners rounded
+              backgroundColor: 'var(--card-background, #1c1c1c)', // ensure background is visible
+              boxShadow: '0 4px 16px rgba(0,0,0,0.3)', // optional for nicer look
+            }}
+          >
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 capitalize">
+                {selectedNodeData?.type}
+                <Badge variant="outline">{selectedNodeData?.id}</Badge>
+              </DialogTitle>
+            </DialogHeader>
 
-          {selectedNodeData && selectedNodeData.type === 'class' && 
-          <ClassDetails isModalView={true}/>}
+            {selectedNodeData && selectedNodeData.type === 'class' && (
+              <ClassDetails isModalView={true} />
+            )}
 
-          {selectedNodeData && selectedNodeData.type === 'property' &&
-          <PropertyDetails isModalView={true} property={selectedNodeData.data}/>}
+            {selectedNodeData && selectedNodeData.type === 'property' && (
+              <PropertyDetails isModalView={true} property={selectedNodeData.data} />
+            )}
 
-          {selectedNodeData && selectedNodeData.type === 'individual' && 
-          <IndividualDetails isModalView={true} individual={selectedNodeData.data}/>}
-        </DialogContent>
-      </Dialog>}
+            {selectedNodeData && selectedNodeData.type === 'individual' && (
+              <IndividualDetails isModalView={true} individual={selectedNodeData.data} />
+            )}
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   )
 }

@@ -256,7 +256,9 @@ function matchPattern(
   // Normalize pattern IRIs
   const normalizedPattern = {
     subject: pattern.subject.startsWith('?') ? pattern.subject : normalizeIRI(pattern.subject),
-    predicate: pattern.predicate.startsWith('?') ? pattern.predicate : normalizeIRI(pattern.predicate),
+    predicate: pattern.predicate.startsWith('?')
+      ? pattern.predicate
+      : normalizeIRI(pattern.predicate),
     object: pattern.object.startsWith('?') ? pattern.object : normalizeIRI(pattern.object),
   }
 
@@ -363,8 +365,12 @@ function parseSPARQLQuery(query: string): {
   whereClause = whereClause.replace(/OPTIONAL\s*\{([^}]*)\}/gi, '$1')
 
   // Parse triple patterns (very basic)
-  const patterns: Array<{ subject: string; predicate: string; object: string; optional?: boolean }> =
-    []
+  const patterns: Array<{
+    subject: string
+    predicate: string
+    object: string
+    optional?: boolean
+  }> = []
   const lines = whereClause
     .split('.')
     .map(l => l.trim())
@@ -385,7 +391,11 @@ function parseSPARQLQuery(query: string): {
       patterns.push({
         subject: parts[0],
         predicate: parts[1],
-        object: parts.slice(2).join(' ').replace(/\s*;\s*$/, '').trim(),
+        object: parts
+          .slice(2)
+          .join(' ')
+          .replace(/\s*;\s*$/, '')
+          .trim(),
       })
     }
   }

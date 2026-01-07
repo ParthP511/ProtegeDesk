@@ -117,7 +117,7 @@ export function ClassDetails({ isModalView }: ClassDetailsProps) {
   const { selectedClass, ontology, selectClass } = useOntology()
   const { toast } = useToast()
   const [selectedElement, setSelectedElement] = useState<string | null>(null)
-  const { copy, copied } = useCopyToClipboard('');
+  const { copy, copied } = useCopyToClipboard('')
 
   const handleElementClick = useCallback((elementId: string) => {
     setSelectedElement(prev => (prev === elementId ? null : elementId))
@@ -190,16 +190,22 @@ export function ClassDetails({ isModalView }: ClassDetailsProps) {
             <CardTitle className="text-base">Class Info</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
-            <div><b>Name:</b> {selectedClass.name}</div>
-            <div><b>Label:</b> {selectedClass.label || '-'}</div>
-            <div><b>Description:</b> {selectedClass.description || '-'}</div>
+            <div>
+              <b>Name:</b> {selectedClass.name}
+            </div>
+            <div>
+              <b>Label:</b> {selectedClass.label || '-'}
+            </div>
+            <div>
+              <b>Description:</b> {selectedClass.description || '-'}
+            </div>
             <div>
               <b>Superclasses:</b>{' '}
-              {selectedClass.superClasses.length > 0
-                ? selectedClass.superClasses.join(', ')
-                : '-'}
+              {selectedClass.superClasses.length > 0 ? selectedClass.superClasses.join(', ') : '-'}
             </div>
-            <div><b>Instance Count:</b> {instances.length}</div>
+            <div>
+              <b>Instance Count:</b> {instances.length}
+            </div>
           </CardContent>
         </Card>
       </ScrollArea>
@@ -253,7 +259,7 @@ export function ClassDetails({ isModalView }: ClassDetailsProps) {
                   onClick={async () => {
                     const success = await copy(selectedClass.id)
 
-                    if(success) {
+                    if (success) {
                       toast({
                         title: 'Copied',
                         description: 'The entity IRI has been copied',

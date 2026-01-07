@@ -17,35 +17,35 @@ Professional **logic-focused unit testing** has been successfully implemented fo
 
 ### Test Files (130 tests total)
 
-1. **lib/__tests__/utils.test.ts** (7 tests)
+1. **lib/**tests**/utils.test.ts** (7 tests)
    - Utility function testing
    - Class name merging logic
 
-2. **lib/ontology/__tests__/reasoner.test.ts** (31 tests)
+2. **lib/ontology/**tests**/reasoner.test.ts** (31 tests)
    - Consistency checking algorithms
    - Circular dependency detection
    - Inference computation
    - Validation logic
 
-3. **lib/ontology/__tests__/context.test.tsx** (23 tests)
+3. **lib/ontology/**tests**/context.test.tsx** (23 tests)
    - State management
    - CRUD operations
    - Selection management
    - Immutability
 
-4. **lib/ontology/__tests__/serializers.test.ts** (43 tests)
+4. **lib/ontology/**tests**/serializers.test.ts** (43 tests)
    - JSON-LD serialization
    - Turtle serialization
    - OWL/XML serialization
    - Format conversion logic
 
-5. **lib/ontology/__tests__/sample-data.test.ts** (50 tests)
+5. **lib/ontology/**tests**/sample-data.test.ts** (50 tests)
    - Data generation
    - Structure validation
    - Consistency checks
    - Relationship validation
 
-6. **hooks/__tests__/use-toast.test.ts** (26 tests)
+6. **hooks/**tests**/use-toast.test.ts** (26 tests)
    - Hook state management
    - Reducer logic
    - Lifecycle operations
@@ -77,14 +77,14 @@ Professional **logic-focused unit testing** has been successfully implemented fo
 
 ## Coverage
 
-| Module | Tests | Coverage | Focus |
-|--------|-------|----------|-------|
-| reasoner.ts | 31 | 99.31% | Algorithms ⚙️ |
-| serializers.tsx | 43 | 95%+ | Transformations 🔄 |
-| sample-data.ts | 50 | 100% | Generation 🏗️ |
-| context.tsx | 23 | 98.22% | State 📊 |
-| use-toast.ts | 26 | 98.95% | Hooks 🪝 |
-| utils.ts | 7 | 100% | Utilities 🛠️ |
+| Module          | Tests | Coverage | Focus              |
+| --------------- | ----- | -------- | ------------------ |
+| reasoner.ts     | 31    | 99.31%   | Algorithms ⚙️      |
+| serializers.tsx | 43    | 95%+     | Transformations 🔄 |
+| sample-data.ts  | 50    | 100%     | Generation 🏗️      |
+| context.tsx     | 23    | 98.22%   | State 📊           |
+| use-toast.ts    | 26    | 98.95%   | Hooks 🪝           |
+| utils.ts        | 7     | 100%     | Utilities 🛠️       |
 
 ## Commands
 

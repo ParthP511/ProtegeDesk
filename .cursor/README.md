@@ -20,6 +20,7 @@ The `.cursorrules` file (located at the project root, not in this directory) con
 ## Usage
 
 Cursor AI automatically reads the `.cursorrules` file when you use features like:
+
 - Code completion and suggestions
 - Chat with AI
 - Code generation
@@ -34,4 +35,3 @@ You can modify `.cursorrules` to add project-specific rules or update guidelines
 - The `.cursorrules` file is at the project root (not in `.cursor/`) because that's where Cursor looks for it
 - This `.cursor/` directory is for organization and documentation purposes
 - See `CURSOR_GUIDELINES.md` for more detailed development guidelines
-

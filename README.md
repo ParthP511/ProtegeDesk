@@ -12,6 +12,7 @@ A next-generation, web-based ontology engineering platform built with TypeScript
 ## 🚀 Features
 
 ### Core Ontology Engineering
+
 - ✨ **Advanced Axiom Editor** with Monaco-powered Manchester Syntax editing
 - 🌳 **Hierarchical Visualization** with automatic layout and incremental loading
 - 📁 **Multiple Format Support** (Turtle, RDF/XML, OWL/XML, N-Triples)
@@ -19,18 +20,21 @@ A next-generation, web-based ontology engineering platform built with TypeScript
 - ✅ **Real-time Validation** and syntax checking
 
 ### AI-Powered Assistance
+
 - 🤖 **Ontology Generation** from natural language descriptions
 - 💡 **Smart Property Recommendations** based on class context
 - 📝 **Axiom Generation** from constraints described in plain English
 - 🎯 **Context-Aware Suggestions** throughout the workflow
 
 ### Reasoning & Validation
+
 - 🧠 **Client-Side Reasoning** (WebAssembly) for instant feedback
 - 🔧 **Inconsistency Detection** with detailed explanations
 - 🛠️ **Automated Repair Wizard** for fixing logical errors
 - 📊 **Inference Visualization** showing derived knowledge
 
 ### User Experience
+
 - 🎨 **Modern UI** with dark/light themes
 - ⌨️ **Keyboard Shortcuts** for power users
 - 🎯 **Command Palette** (⌘+K) for quick access
@@ -55,6 +59,7 @@ A next-generation, web-based ontology engineering platform built with TypeScript
 ## 📦 Installation
 
 ### Prerequisites
+
 - Node.js 18+ and npm 9+
 - Modern browser (Chrome 86+, Firefox 82+, Safari 14+, Edge 86+)
 
@@ -147,6 +152,7 @@ npm start
 ### Current Version: 0.2.0 (MVP Development)
 
 **Development Progress**:
+
 - [x] Sprint 0: Project Setup ✅
 - [ ] Sprint 1: Core Infrastructure (In Progress)
 - [ ] Sprint 2: Ontology Management
@@ -159,12 +165,14 @@ See [Project Board](https://github.com/yourusername/modern-ontology-editor/proje
 ### Roadmap
 
 **Version 1.0** (6 months)
+
 - Complete ontology editing capabilities
 - AI-assisted development
 - Client-side reasoning
 - Visualization with incremental loading
 
 **Version 2.0** (Future)
+
 - Real-time collaboration
 - Version control integration
 - Mobile applications
@@ -246,9 +254,7 @@ describe('HermiTReasoner', () => {
     const reasoner = new HermiTReasoner(ontology)
     const result = reasoner.reason()
 
-    expect(result.errors).toContainEqual(
-      expect.objectContaining({ type: 'circular' })
-    )
+    expect(result.errors).toContainEqual(expect.objectContaining({ type: 'circular' }))
   })
 })
 ```
@@ -259,20 +265,20 @@ See [TESTING.md](TESTING.md) for detailed documentation.
 
 ## 📋 Available Scripts
 
-| Script | Description |
-|--------|-------------|
-| `npm run dev` | Start development server |
-| `npm run build` | Create production build |
-| `npm start` | Start production server |
-| `npm test` | Run unit tests |
-| `npm run test:watch` | Run tests in watch mode |
-| `npm run test:coverage` | Run tests with coverage report |
-| `npm run test:ci` | Run tests in CI mode |
-| `npm run lint` | Run ESLint |
-| `npm run lint:fix` | Auto-fix linting issues |
-| `npm run format` | Format code with Prettier |
-| `npm run type-check` | Run TypeScript type checking |
-| `npm run validate` | Run all checks (type + lint + format + test) |
+| Script                  | Description                                  |
+| ----------------------- | -------------------------------------------- |
+| `npm run dev`           | Start development server                     |
+| `npm run build`         | Create production build                      |
+| `npm start`             | Start production server                      |
+| `npm test`              | Run unit tests                               |
+| `npm run test:watch`    | Run tests in watch mode                      |
+| `npm run test:coverage` | Run tests with coverage report               |
+| `npm run test:ci`       | Run tests in CI mode                         |
+| `npm run lint`          | Run ESLint                                   |
+| `npm run lint:fix`      | Auto-fix linting issues                      |
+| `npm run format`        | Format code with Prettier                    |
+| `npm run type-check`    | Run TypeScript type checking                 |
+| `npm run validate`      | Run all checks (type + lint + format + test) |
 
 ---
 

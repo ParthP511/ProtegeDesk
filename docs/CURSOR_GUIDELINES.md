@@ -30,6 +30,7 @@ Cursor is an AI-powered code editor that enhances development productivity throu
 ### Project Context
 
 **ProtegeDesk** is a modern, web-based ontology editor built with:
+
 - **Frontend:** React 18+, TypeScript 5+, Next.js 14+
 - **State Management:** Zustand with Immer
 - **Code Editor:** Monaco Editor (VS Code engine)
@@ -55,8 +56,9 @@ Cursor is an AI-powered code editor that enhances development productivity throu
 #### ✅ Good Prompts
 
 **Be Specific and Context-Aware:**
+
 ```
-Create a React component for displaying ontology class nodes in the graph visualization. 
+Create a React component for displaying ontology class nodes in the graph visualization.
 The component should:
 - Accept props: id (string), label (string), parentId (string | null), subClassCount (number)
 - Use React Flow's Node type from @xyflow/react
@@ -68,6 +70,7 @@ The component should:
 ```
 
 **Include Architecture Context:**
+
 ```
 Add a new Zustand store for managing reasoning results. The store should:
 - Store inferred axioms as an array
@@ -78,6 +81,7 @@ Add a new Zustand store for managing reasoning results. The store should:
 ```
 
 **Reference Existing Code:**
+
 ```
 Refactor the AxiomEditor component to extract the completion provider logic into a separate hook.
 Follow the same pattern used in hooks/useMonacoEditor.ts and maintain the same API.
@@ -119,7 +123,7 @@ Follow the same pattern used in hooks/useMonacoEditor.ts and maintain the same A
 #### Example Workflow
 
 ```
-1. Chat: "I need to add property recommendations to the AI assistant. 
+1. Chat: "I need to add property recommendations to the AI assistant.
    What's the best way to structure this feature?"
 
 2. Generate: "Create the TypeScript interface for property recommendations"
@@ -171,7 +175,7 @@ import type { FeatureProps } from './types';
 
 /**
  * FeatureName component description
- * 
+ *
  * @param props - Component props
  * @returns JSX element
  */
@@ -182,7 +186,7 @@ export const FeatureName: React.FC<FeatureProps> = ({
   ...rest
 }) => {
   const { state, actions } = useFeatureStore();
-  
+
   const handleClick = useCallback(() => {
     onAction?.(id);
   }, [id, onAction]);
@@ -214,56 +218,60 @@ FeatureName.displayName = 'FeatureName';
 
 ```typescript
 // stores/ontologyStore.ts
-import { create } from 'zustand';
-import { immer } from 'zustand/middleware/immer';
-import type { Ontology, Class } from '@/types/ontology';
+import { create } from 'zustand'
+import { immer } from 'zustand/middleware/immer'
+import type { Ontology, Class } from '@/types/ontology'
 
 interface OntologyState {
   // State
-  ontology: Ontology | null;
-  selectedClass: Class | null;
-  isLoading: boolean;
-  
+  ontology: Ontology | null
+  selectedClass: Class | null
+  isLoading: boolean
+
   // Actions
-  setOntology: (ontology: Ontology) => void;
-  selectClass: (classId: string) => void;
-  addClass: (cls: Class) => void;
-  updateClass: (id: string, updates: Partial<Class>) => void;
+  setOntology: (ontology: Ontology) => void
+  selectClass: (classId: string) => void
+  addClass: (cls: Class) => void
+  updateClass: (id: string, updates: Partial<Class>) => void
 }
 
 export const useOntologyStore = create<OntologyState>()(
-  immer((set) => ({
+  immer(set => ({
     ontology: null,
     selectedClass: null,
     isLoading: false,
-    
-    setOntology: (ontology) => set((state) => {
-      state.ontology = ontology;
-      state.selectedClass = null;
-    }),
-    
-    selectClass: (classId) => set((state) => {
-      if (state.ontology) {
-        state.selectedClass = state.ontology.classes.find(c => c.id === classId) || null;
-      }
-    }),
-    
-    addClass: (cls) => set((state) => {
-      if (state.ontology) {
-        state.ontology.classes.push(cls);
-      }
-    }),
-    
-    updateClass: (id, updates) => set((state) => {
-      if (state.ontology) {
-        const cls = state.ontology.classes.find(c => c.id === id);
-        if (cls) {
-          Object.assign(cls, updates);
+
+    setOntology: ontology =>
+      set(state => {
+        state.ontology = ontology
+        state.selectedClass = null
+      }),
+
+    selectClass: classId =>
+      set(state => {
+        if (state.ontology) {
+          state.selectedClass = state.ontology.classes.find(c => c.id === classId) || null
         }
-      }
-    }),
+      }),
+
+    addClass: cls =>
+      set(state => {
+        if (state.ontology) {
+          state.ontology.classes.push(cls)
+        }
+      }),
+
+    updateClass: (id, updates) =>
+      set(state => {
+        if (state.ontology) {
+          const cls = state.ontology.classes.find(c => c.id === id)
+          if (cls) {
+            Object.assign(cls, updates)
+          }
+        }
+      }),
   }))
-);
+)
 ```
 
 #### Cursor Prompts for Stores
@@ -284,35 +292,35 @@ Create a Zustand store for managing reasoning state. Include:
 
 ```typescript
 // services/ontology/parser.ts
-import { Parser, Store } from 'n3';
-import type { Ontology } from '@/types/ontology';
+import { Parser, Store } from 'n3'
+import type { Ontology } from '@/types/ontology'
 
 export class OntologyParser {
-  private parser: Parser;
-  private store: Store;
+  private parser: Parser
+  private store: Store
 
   constructor() {
-    this.parser = new Parser({ format: 'text/turtle' });
-    this.store = new Store();
+    this.parser = new Parser({ format: 'text/turtle' })
+    this.store = new Store()
   }
 
   async parse(content: string): Promise<Ontology> {
     return new Promise((resolve, reject) => {
       this.parser.parse(content, (error, quad, prefixes) => {
         if (error) {
-          reject(error);
-          return;
+          reject(error)
+          return
         }
-        
+
         if (quad) {
-          this.store.addQuad(quad);
+          this.store.addQuad(quad)
         } else {
           // Parsing complete
-          const ontology = this.convertStoreToOntology(this.store, prefixes);
-          resolve(ontology);
+          const ontology = this.convertStoreToOntology(this.store, prefixes)
+          resolve(ontology)
         }
-      });
-    });
+      })
+    })
   }
 
   private convertStoreToOntology(store: Store, prefixes: Record<string, string>): Ontology {
@@ -336,44 +344,44 @@ Create a reasoning service that:
 
 ```typescript
 // hooks/useMonacoEditor.ts
-import { useEffect, useRef } from 'react';
-import * as Monaco from 'monaco-editor';
-import { useOntologyStore } from '@/stores/ontologyStore';
+import { useEffect, useRef } from 'react'
+import * as Monaco from 'monaco-editor'
+import { useOntologyStore } from '@/stores/ontologyStore'
 
 export const useMonacoEditor = (containerRef: React.RefObject<HTMLDivElement>) => {
-  const editorRef = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null);
-  const { ontology } = useOntologyStore();
+  const editorRef = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null)
+  const { ontology } = useOntologyStore()
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    if (!containerRef.current) return
 
     const editor = Monaco.editor.create(containerRef.current, {
       language: 'owl-manchester',
       theme: 'owl-ms-dark',
       minimap: { enabled: false },
       fontSize: 14,
-    });
+    })
 
-    editorRef.current = editor;
+    editorRef.current = editor
 
     return () => {
-      editor.dispose();
-    };
-  }, [containerRef]);
+      editor.dispose()
+    }
+  }, [containerRef])
 
   // Register completion provider
   useEffect(() => {
-    if (!editorRef.current || !ontology) return;
+    if (!editorRef.current || !ontology) return
 
     Monaco.languages.registerCompletionItemProvider('owl-manchester', {
       provideCompletionItems: (model, position) => {
         // Completion logic using ontology context
       },
-    });
-  }, [editorRef.current, ontology]);
+    })
+  }, [editorRef.current, ontology])
 
-  return editorRef;
-};
+  return editorRef
+}
 ```
 
 ---
@@ -385,6 +393,7 @@ export const useMonacoEditor = (containerRef: React.RefObject<HTMLDivElement>) =
 #### Always Specify Types
 
 **✅ Good:**
+
 ```
 Create a function parseManchesterSyntax that:
 - Takes a string parameter (axiom: string)
@@ -395,6 +404,7 @@ Create a function parseManchesterSyntax that:
 ```
 
 **❌ Bad:**
+
 ```
 Create a function to parse Manchester syntax
 ```
@@ -462,35 +472,35 @@ Create a search input component with:
 ```typescript
 // types/ontology.ts
 export interface Ontology {
-  iri: string;
-  versionInfo?: string;
-  classes: Class[];
-  objectProperties: ObjectProperty[];
-  dataProperties: DataProperty[];
-  individuals: Individual[];
-  axioms: Axiom[];
+  iri: string
+  versionInfo?: string
+  classes: Class[]
+  objectProperties: ObjectProperty[]
+  dataProperties: DataProperty[]
+  individuals: Individual[]
+  axioms: Axiom[]
 }
 
 export interface Class {
-  id: string;
-  iri: string;
-  label: string;
-  comment?: string;
-  parentIds: string[];
-  subClassCount: number;
-  annotations: Record<string, string>;
+  id: string
+  iri: string
+  label: string
+  comment?: string
+  parentIds: string[]
+  subClassCount: number
+  annotations: Record<string, string>
 }
 
 export type ObjectProperty = Property & {
-  domain?: string[];
-  range?: string[];
-  characteristics?: PropertyCharacteristic[];
-};
+  domain?: string[]
+  range?: string[]
+  characteristics?: PropertyCharacteristic[]
+}
 
 export type DataProperty = Property & {
-  domain?: string[];
-  range: string; // Datatype IRI
-};
+  domain?: string[]
+  range: string // Datatype IRI
+}
 ```
 
 #### Cursor Prompt for Types
@@ -516,22 +526,22 @@ export const ClassNode: React.FC<ClassNodeProps> = ({ id, label, onSelect }) => 
   // Hooks at the top
   const [isExpanded, setIsExpanded] = useState(false);
   const { classes } = useOntologyStore();
-  
+
   // Memoized values
   const children = useMemo(() => {
     return classes.filter(c => c.parentId === id);
   }, [classes, id]);
-  
+
   // Callbacks
   const handleClick = useCallback(() => {
     onSelect(id);
   }, [id, onSelect]);
-  
+
   // Effects
   useEffect(() => {
     // Side effects
   }, [dependencies]);
-  
+
   return (
     // JSX
   );
@@ -544,19 +554,19 @@ export const ClassNode: React.FC<ClassNodeProps> = ({ id, label, onSelect }) => 
 
 ```typescript
 interface ClassNodeProps {
-  id: string;
-  label: string;
-  parentId: string | null;
-  subClassCount: number;
-  isSelected?: boolean;
-  onSelect: (id: string) => void;
-  onExpand?: (id: string) => void;
-  className?: string;
+  id: string
+  label: string
+  parentId: string | null
+  subClassCount: number
+  isSelected?: boolean
+  onSelect: (id: string) => void
+  onExpand?: (id: string) => void
+  className?: string
 }
 
-export const ClassNode: React.FC<ClassNodeProps> = (props) => {
+export const ClassNode: React.FC<ClassNodeProps> = props => {
   // Implementation
-};
+}
 ```
 
 ---
@@ -599,32 +609,32 @@ Create React Testing Library tests for ClassNode component:
 
 ```typescript
 // __tests__/services/ontologyParser.test.ts
-import { describe, it, expect, beforeEach } from 'vitest';
-import { OntologyParser } from '@/services/ontology/parser';
+import { describe, it, expect, beforeEach } from 'vitest'
+import { OntologyParser } from '@/services/ontology/parser'
 
 describe('OntologyParser', () => {
-  let parser: OntologyParser;
+  let parser: OntologyParser
 
   beforeEach(() => {
-    parser = new OntologyParser();
-  });
+    parser = new OntologyParser()
+  })
 
   it('should parse valid Turtle syntax', async () => {
     const turtle = `
       @prefix ex: <http://example.org#> .
       ex:Person a owl:Class .
-    `;
-    
-    const ontology = await parser.parse(turtle);
-    expect(ontology.classes).toHaveLength(1);
-    expect(ontology.classes[0].label).toBe('Person');
-  });
+    `
+
+    const ontology = await parser.parse(turtle)
+    expect(ontology.classes).toHaveLength(1)
+    expect(ontology.classes[0].label).toBe('Person')
+  })
 
   it('should throw error for invalid syntax', async () => {
-    const invalid = 'invalid turtle syntax {';
-    await expect(parser.parse(invalid)).rejects.toThrow();
-  });
-});
+    const invalid = 'invalid turtle syntax {'
+    await expect(parser.parse(invalid)).rejects.toThrow()
+  })
+})
 ```
 
 ---
@@ -707,23 +717,23 @@ Move the ELK.js layout calculation to a Web Worker:
 ```typescript
 // services/ai/apiKeyManager.ts
 export class APIKeyManager {
-  private static readonly STORAGE_KEY = 'encrypted_api_keys';
-  
+  private static readonly STORAGE_KEY = 'encrypted_api_keys'
+
   static async storeKey(provider: 'openai' | 'anthropic', key: string): Promise<void> {
     // Encrypt using Web Crypto API
-    const encrypted = await this.encrypt(key);
-    const keys = this.getStoredKeys();
-    keys[provider] = encrypted;
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(keys));
+    const encrypted = await this.encrypt(key)
+    const keys = this.getStoredKeys()
+    keys[provider] = encrypted
+    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(keys))
   }
-  
+
   static async getKey(provider: 'openai' | 'anthropic'): Promise<string | null> {
-    const keys = this.getStoredKeys();
-    const encrypted = keys[provider];
-    if (!encrypted) return null;
-    return this.decrypt(encrypted);
+    const keys = this.getStoredKeys()
+    const encrypted = keys[provider]
+    if (!encrypted) return null
+    return this.decrypt(encrypted)
   }
-  
+
   private static async encrypt(data: string): Promise<string> {
     // Use Web Crypto API for encryption
   }
@@ -750,18 +760,18 @@ Create a secure API key manager service:
 // utils/validation.ts
 export const validateIRI = (iri: string): boolean => {
   try {
-    new URL(iri);
-    return true;
+    new URL(iri)
+    return true
   } catch {
-    return false;
+    return false
   }
-};
+}
 
 export const sanitizeManchesterSyntax = (input: string): string => {
   // Remove potentially dangerous characters
   // Validate against grammar
-  return input.replace(/[<>{}]/g, '');
-};
+  return input.replace(/[<>{}]/g, '')
+}
 ```
 
 ### 3. XSS Prevention
@@ -787,8 +797,8 @@ When rendering user-provided ontology labels and comments:
 
 ```
 1. Planning Phase (Chat):
-   "I want to add property recommendations to the AI assistant. 
-   What's the best architecture? Should it be a separate service or 
+   "I want to add property recommendations to the AI assistant.
+   What's the best architecture? Should it be a separate service or
    part of the existing AI service?"
 
 2. Type Definitions:
@@ -903,7 +913,7 @@ export const AxiomEditor: React.FC = () => {
 
   const handleEditorDidMount = (editor: Monaco.editor.IStandaloneCodeEditor, monaco: Monaco) => {
     editorRef.current = editor;
-    
+
     // Register completion provider
     monaco.languages.registerCompletionItemProvider('owl-manchester', {
       provideCompletionItems: (model, position) => {
@@ -972,7 +982,7 @@ export const OntologyGraph: React.FC = () => {
   // Convert ontology to graph nodes/edges
   const graphData = useMemo(() => {
     if (!ontology) return { nodes: [], edges: [] };
-    
+
     const nodes: Node[] = ontology.classes.map(cls => ({
       id: cls.id,
       type: 'class',
@@ -1025,76 +1035,81 @@ export const OntologyGraph: React.FC = () => {
 
 ```typescript
 // stores/reasoningStore.ts
-import { create } from 'zustand';
-import { immer } from 'zustand/middleware/immer';
-import type { InferredAxiom } from '@/types/ontology';
+import { create } from 'zustand'
+import { immer } from 'zustand/middleware/immer'
+import type { InferredAxiom } from '@/types/ontology'
 
 interface ReasoningState {
-  status: 'idle' | 'running' | 'completed' | 'error';
-  results: InferredAxiom[];
-  error: Error | null;
-  progress: number;
-  
-  startReasoning: () => void;
-  setResults: (results: InferredAxiom[]) => void;
-  setError: (error: Error) => void;
-  setProgress: (progress: number) => void;
-  reset: () => void;
+  status: 'idle' | 'running' | 'completed' | 'error'
+  results: InferredAxiom[]
+  error: Error | null
+  progress: number
+
+  startReasoning: () => void
+  setResults: (results: InferredAxiom[]) => void
+  setError: (error: Error) => void
+  setProgress: (progress: number) => void
+  reset: () => void
 }
 
 export const useReasoningStore = create<ReasoningState>()(
-  immer((set) => ({
+  immer(set => ({
     status: 'idle',
     results: [],
     error: null,
     progress: 0,
 
-    startReasoning: () => set((state) => {
-      state.status = 'running';
-      state.results = [];
-      state.error = null;
-      state.progress = 0;
-    }),
+    startReasoning: () =>
+      set(state => {
+        state.status = 'running'
+        state.results = []
+        state.error = null
+        state.progress = 0
+      }),
 
-    setResults: (results) => set((state) => {
-      state.status = 'completed';
-      state.results = results;
-      state.progress = 100;
-    }),
+    setResults: results =>
+      set(state => {
+        state.status = 'completed'
+        state.results = results
+        state.progress = 100
+      }),
 
-    setError: (error) => set((state) => {
-      state.status = 'error';
-      state.error = error;
-    }),
+    setError: error =>
+      set(state => {
+        state.status = 'error'
+        state.error = error
+      }),
 
-    setProgress: (progress) => set((state) => {
-      state.progress = progress;
-    }),
+    setProgress: progress =>
+      set(state => {
+        state.progress = progress
+      }),
 
-    reset: () => set((state) => {
-      state.status = 'idle';
-      state.results = [];
-      state.error = null;
-      state.progress = 0;
-    }),
+    reset: () =>
+      set(state => {
+        state.status = 'idle'
+        state.results = []
+        state.error = null
+        state.progress = 0
+      }),
   }))
-);
+)
 ```
 
 ### 4. AI Service Integration
 
 ```typescript
 // services/ai/ontologyGenerator.ts
-import { generateText } from 'ai';
-import { openai } from '@ai-sdk/openai';
-import { APIKeyManager } from './apiKeyManager';
-import type { Ontology } from '@/types/ontology';
+import { generateText } from 'ai'
+import { openai } from '@ai-sdk/openai'
+import { APIKeyManager } from './apiKeyManager'
+import type { Ontology } from '@/types/ontology'
 
 export class OntologyGenerator {
   async generateFromDescription(description: string): Promise<Ontology> {
-    const apiKey = await APIKeyManager.getKey('openai');
+    const apiKey = await APIKeyManager.getKey('openai')
     if (!apiKey) {
-      throw new Error('OpenAI API key not configured');
+      throw new Error('OpenAI API key not configured')
     }
 
     const prompt = `Generate an OWL ontology structure from this description: ${description}
@@ -1107,15 +1122,15 @@ Requirements:
 {
   "classes": [{"name": "ClassName", "parent": "ParentClass", "description": "..."}],
   "properties": [{"name": "propertyName", "type": "ObjectProperty|DataProperty", "domain": "...", "range": "..."}]
-}`;
+}`
 
     const { text } = await generateText({
       model: openai('gpt-4'),
       prompt,
       maxTokens: 2000,
-    });
+    })
 
-    return this.parseGeneratedOntology(text);
+    return this.parseGeneratedOntology(text)
   }
 
   private parseGeneratedOntology(text: string): Ontology {
@@ -1140,26 +1155,30 @@ Requirements:
 ### Common Cursor Prompts
 
 #### Component Creation
+
 ```
-Create a [ComponentName] component that [does X]. 
+Create a [ComponentName] component that [does X].
 Follow the pattern in [similar component] and use [specific library/pattern].
 ```
 
 #### Refactoring
+
 ```
-Refactor [target] to [goal]. 
+Refactor [target] to [goal].
 Maintain the same API and ensure all tests pass.
 ```
 
 #### Testing
+
 ```
-Generate [test type] tests for [target]. 
+Generate [test type] tests for [target].
 Cover [specific scenarios] and follow patterns in [test file].
 ```
 
 #### Debugging
+
 ```
-Debug [issue]. Add logging to identify [problem area] 
+Debug [issue]. Add logging to identify [problem area]
 and suggest a fix.
 ```
 
@@ -1225,6 +1244,5 @@ src/
 
 ---
 
-*Last Updated: 2025-12-29*  
-*Version: 1.0*
-
+_Last Updated: 2025-12-29_  
+_Version: 1.0_

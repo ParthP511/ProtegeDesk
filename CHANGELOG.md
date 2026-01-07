@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.2.0] - 2026-01-02
 
 ### Added
+
 - **Individuals Feature**: Complete implementation of ontology individuals (instances)
   - IndividualList component with search and grouping by type
   - IndividualDetails component showing individual properties, types, and relationships
@@ -18,10 +19,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Documentation links now redirect to GitHub Wiki
 
 ### Changed
+
 - Updated README documentation links to point to GitHub Wiki
 - Updated sample data with richer individual examples including property assertions and relationships
 
 ### Fixed
+
 - ESLint errors across test and source files
 - Test framework compatibility (replaced vitest with jest in header tests)
 - Prettier formatting issues
@@ -30,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2025-12-XX
 
 ### Added
+
 - Initial project setup with Next.js 16, React 19, TypeScript 5
 - Core ontology editing capabilities (Classes, Properties)
 - Advanced Axiom Editor with Monaco-powered Manchester Syntax editing
@@ -43,6 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 95%+ test coverage on core modules
 
 ### Infrastructure
+
 - Jest testing framework with React Testing Library
 - TypeScript strict mode configuration
 - Tailwind CSS with Shadcn/ui components

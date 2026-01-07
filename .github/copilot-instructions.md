@@ -57,14 +57,16 @@ styles/              # Global CSS
 5. **UI Sync**: Components automatically re-render when selections or ontology changes
 
 **Key Pattern Example**:
+
 ```typescript
 // In any component:
-const { ontology, selectedClass, addClass } = useOntology();
+const { ontology, selectedClass, addClass } = useOntology()
 ```
 
 ### Critical Data Structures
 
 The `Ontology` type in [lib/ontology/types.ts](lib/ontology/types.ts) defines:
+
 - `classes: Map<string, OntologyClass>` - Class hierarchy with IRI keys
 - `properties: Map<string, OntologyProperty>` - Object/Data properties
 - `individuals: Map<string, Individual>` - Instances and named entities
@@ -93,15 +95,17 @@ npm run validate        # Full validation: types + lint + format + tests
 ### Key Development Patterns
 
 **Run validation before committing:**
+
 ```bash
 npm run validate  # This is the pre-commit workflow
 ```
 
 **Working with ontology logic:**
-1. Test files live in `__tests__/` alongside implementation ([lib/ontology/__tests__/](lib/ontology/__tests__/))
-2. Reasoning tests: [lib/ontology/__tests__/reasoner.test.ts](lib/ontology/__tests__/reasoner.test.ts) (31 tests)
-3. State management tests: [lib/ontology/__tests__/context.test.tsx](lib/ontology/__tests__/context.test.tsx) (23 tests)
-4. Serializer tests: [lib/ontology/__tests__/serializers.test.ts](lib/ontology/__tests__/serializers.test.ts) (43 tests)
+
+1. Test files live in `__tests__/` alongside implementation ([lib/ontology/**tests**/](lib/ontology/__tests__/))
+2. Reasoning tests: [lib/ontology/**tests**/reasoner.test.ts](lib/ontology/__tests__/reasoner.test.ts) (31 tests)
+3. State management tests: [lib/ontology/**tests**/context.test.tsx](lib/ontology/__tests__/context.test.tsx) (23 tests)
+4. Serializer tests: [lib/ontology/**tests**/serializers.test.ts](lib/ontology/__tests__/serializers.test.ts) (43 tests)
 
 ---
 
@@ -115,16 +119,17 @@ npm run validate  # This is the pre-commit workflow
 - **Strict mode enabled** in tsconfig.json
 
 **Component Props Example**:
+
 ```typescript
 interface ClassNodeProps {
-  id: string;
-  label: string;
-  onSelect: (id: string) => void;
+  id: string
+  label: string
+  onSelect: (id: string) => void
 }
 
 export const ClassNode: React.FC<ClassNodeProps> = ({ id, label, onSelect }) => {
   // implementation
-};
+}
 ```
 
 ### React Component Conventions
@@ -136,6 +141,7 @@ export const ClassNode: React.FC<ClassNodeProps> = ({ id, label, onSelect }) => 
 - **Callbacks**: Wrap with `useCallback()` when passed as props (dependency tracking critical)
 
 **Component Template**:
+
 ```typescript
 'use client'
 
@@ -151,8 +157,8 @@ export const ClassDetails: React.FC<ClassDetailsProps> = ({ classId }) => {
   const { ontology, updateClass } = useOntology();
   const [isEditing, setIsEditing] = useState(false);
 
-  const owlClass = useMemo(() => 
-    ontology?.classes.get(classId), 
+  const owlClass = useMemo(() =>
+    ontology?.classes.get(classId),
     [ontology?.classes, classId]
   );
 
@@ -180,21 +186,23 @@ ClassDetails.displayName = 'ClassDetails';
 ### State Management with React Context
 
 **Access pattern** (used everywhere):
+
 ```typescript
-const { ontology, selectedClass, addClass, selectClass } = useOntology();
+const { ontology, selectedClass, addClass, selectClass } = useOntology()
 ```
 
 **CRUD Pattern** (Map-based immutability):
+
 ```typescript
 // Context performs: new Map(prev.classes) → mutation → return new state
 const addClass = useCallback((owlClass: OntologyClass) => {
   setOntology(prev => {
-    if (!prev) return prev;
-    const classes = new Map(prev.classes);
-    classes.set(owlClass.id, owlClass);
-    return { ...prev, classes };
-  });
-}, []);
+    if (!prev) return prev
+    const classes = new Map(prev.classes)
+    classes.set(owlClass.id, owlClass)
+    return { ...prev, classes }
+  })
+}, [])
 ```
 
 ### Ontology-Specific Conventions
@@ -207,27 +215,31 @@ const addClass = useCallback((owlClass: OntologyClass) => {
 ### Format Support (Serialization)
 
 Supported formats in [lib/ontology/serializers.tsx](lib/ontology/serializers.tsx):
+
 - **Turtle** (`.ttl`) - Human-readable RDF
 - **JSON-LD** (`.jsonld`) - JSON format with linked data
 - **OWL/XML** (`.owl`) - W3C XML format
 
 Import serialization functions:
+
 ```typescript
-import { serializeToTurtle, parseFromTurtle, /* ... */ } from '@/lib/ontology/serializers';
+import { serializeToTurtle, parseFromTurtle /* ... */ } from '@/lib/ontology/serializers'
 ```
 
 ### Reasoning & Consistency Checking
 
 Located in [lib/ontology/reasoner.ts](lib/ontology/reasoner.ts):
+
 - **Consistency Check**: Detects contradictions, circular dependencies
 - **Inference**: Derives implicit class relationships
 - **Validation**: Checks IRI uniqueness, class hierarchy validity
 
 Usage pattern:
+
 ```typescript
-import { HermiTReasoner } from '@/lib/ontology/reasoner';
-const reasoner = new HermiTReasoner(ontology);
-const result = reasoner.reason(); // { isConsistent, inferences, errors }
+import { HermiTReasoner } from '@/lib/ontology/reasoner'
+const reasoner = new HermiTReasoner(ontology)
+const result = reasoner.reason() // { isConsistent, inferences, errors }
 ```
 
 ---
@@ -237,29 +249,30 @@ const result = reasoner.reason(); // { isConsistent, inferences, errors }
 ### Coverage Target: 80%+ for Utilities/Services
 
 **Test Structure**:
+
 - Logic-focused unit tests (130 tests total)
 - Mock data for reproducible tests
 - AAA Pattern: Arrange → Act → Assert
 
 **Key Test Files**:
-- [lib/ontology/__tests__/reasoner.test.ts](lib/ontology/__tests__/reasoner.test.ts) - Algorithm testing
-- [lib/ontology/__tests__/context.test.tsx](lib/ontology/__tests__/context.test.tsx) - State management
-- [lib/ontology/__tests__/serializers.test.ts](lib/ontology/__tests__/serializers.test.ts) - Format conversion
-- [hooks/__tests__/use-toast.test.ts](hooks/__tests__/use-toast.test.ts) - Hook logic
+
+- [lib/ontology/**tests**/reasoner.test.ts](lib/ontology/__tests__/reasoner.test.ts) - Algorithm testing
+- [lib/ontology/**tests**/context.test.tsx](lib/ontology/__tests__/context.test.tsx) - State management
+- [lib/ontology/**tests**/serializers.test.ts](lib/ontology/__tests__/serializers.test.ts) - Format conversion
+- [hooks/**tests**/use-toast.test.ts](hooks/__tests__/use-toast.test.ts) - Hook logic
 
 **Test Example**:
+
 ```typescript
 describe('HermiTReasoner', () => {
   it('should detect circular dependencies', () => {
-    const ontology = createMockOntologyWithCircularRefs();
-    const reasoner = new HermiTReasoner(ontology);
-    const result = reasoner.reason();
+    const ontology = createMockOntologyWithCircularRefs()
+    const reasoner = new HermiTReasoner(ontology)
+    const result = reasoner.reason()
 
-    expect(result.errors).toContainEqual(
-      expect.objectContaining({ type: 'circular' })
-    );
-  });
-});
+    expect(result.errors).toContainEqual(expect.objectContaining({ type: 'circular' }))
+  })
+})
 ```
 
 ---
@@ -268,18 +281,19 @@ describe('HermiTReasoner', () => {
 
 ### External Libraries (Critical for Features)
 
-| Library | Purpose | Key Usage |
-|---------|---------|-----------|
-| **React Flow** (@xyflow/react) | Graph visualization | [components/ontology/graph-view.tsx](components/ontology/graph-view.tsx) |
-| **ELK.js** | Auto-layout algorithm | Graph node positioning |
-| **Monaco Editor** | Code editor | Axiom/Manchester syntax editing |
-| **N3.js** | RDF parsing | Built into serializers (not directly imported) |
-| **Tailwind CSS** | Styling | All components use utility classes |
-| **Radix UI** | Accessible primitives | Dialog, Select, Tabs base (wrapped by Shadcn) |
+| Library                        | Purpose               | Key Usage                                                                |
+| ------------------------------ | --------------------- | ------------------------------------------------------------------------ |
+| **React Flow** (@xyflow/react) | Graph visualization   | [components/ontology/graph-view.tsx](components/ontology/graph-view.tsx) |
+| **ELK.js**                     | Auto-layout algorithm | Graph node positioning                                                   |
+| **Monaco Editor**              | Code editor           | Axiom/Manchester syntax editing                                          |
+| **N3.js**                      | RDF parsing           | Built into serializers (not directly imported)                           |
+| **Tailwind CSS**               | Styling               | All components use utility classes                                       |
+| **Radix UI**                   | Accessible primitives | Dialog, Select, Tabs base (wrapped by Shadcn)                            |
 
 ### Component Composition Example
 
 [components/ontology/details-panel.tsx](components/ontology/details-panel.tsx) shows the pattern:
+
 ```typescript
 // Reads selection state
 const { selectedClass, selectedProperty, selectedIndividual } = useOntology();
@@ -305,11 +319,11 @@ if (selectedProperty) return <PropertyDetails />;
 
 ### Fixing a Serialization Bug
 
-Start here: [lib/ontology/serializers.tsx](lib/ontology/serializers.tsx) contains all format logic. Reference tests in [lib/ontology/__tests__/serializers.test.ts](lib/ontology/__tests__/serializers.test.ts) for expected behavior.
+Start here: [lib/ontology/serializers.tsx](lib/ontology/serializers.tsx) contains all format logic. Reference tests in [lib/ontology/**tests**/serializers.test.ts](lib/ontology/__tests__/serializers.test.ts) for expected behavior.
 
 ### Reasoning Issues
 
-Check [lib/ontology/reasoner.ts](lib/ontology/reasoner.ts) and [lib/ontology/__tests__/reasoner.test.ts](lib/ontology/__tests__/reasoner.test.ts). The reasoner implements consistency checking and inference - review test cases to understand expected behavior.
+Check [lib/ontology/reasoner.ts](lib/ontology/reasoner.ts) and [lib/ontology/**tests**/reasoner.test.ts](lib/ontology/__tests__/reasoner.test.ts). The reasoner implements consistency checking and inference - review test cases to understand expected behavior.
 
 ---
 

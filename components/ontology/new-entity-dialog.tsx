@@ -27,15 +27,13 @@ import type { Ontology } from '@/lib/ontology/types'
 
 // Validate IRI format - accepts full IRIs or simple identifiers
 function isValidIRI(value: string): boolean {
-  const iriPattern = /^[a-zA-Z][a-zA-Z0-9+.-]*:\/\/[^\s]+$/;
-  return iriPattern.test(value) || /^[a-zA-Z_][a-zA-Z0-9_-]*$/.test(value);
+  const iriPattern = /^[a-zA-Z][a-zA-Z0-9+.-]*:\/\/[^\s]+$/
+  return iriPattern.test(value) || /^[a-zA-Z_][a-zA-Z0-9_-]*$/.test(value)
 }
 
 // Check if ID already exists in the ontology
 function isDuplicate(id: string, ontology: Ontology): boolean {
-  return ontology.classes.has(id) ||
-         ontology.properties.has(id) ||
-         ontology.individuals.has(id);
+  return ontology.classes.has(id) || ontology.properties.has(id) || ontology.individuals.has(id)
 }
 
 export function NewEntityDialog() {

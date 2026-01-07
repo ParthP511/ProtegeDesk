@@ -31,23 +31,27 @@ npm run test:ci
 ## What We Test
 
 ### ✅ Business Logic
+
 - Ontology reasoning algorithms (31 tests)
 - Consistency checking
 - Inference rules
 - Validation logic
 
 ### ✅ Data Transformations
+
 - JSON-LD, Turtle, OWL/XML serialization (43 tests)
 - Data structure conversions
 - Parsing logic
 
 ### ✅ State Management
+
 - Context operations (23 tests)
 - CRUD operations
 - State immutability
 - Hook logic (26 tests)
 
 ### ✅ Data Generation & Validation
+
 - Sample data creation (50 tests)
 - Structure validation
 - Consistency checks
@@ -106,14 +110,14 @@ const createMockOntology = (): Ontology => ({
 
 ## Coverage
 
-| Module | Coverage | Focus |
-|--------|----------|-------|
-| reasoner.ts | 99.31% | Algorithms ⚙️ |
-| context.tsx | 98.22% | State 📊 |
-| serializers.tsx | 95%+ | Transformations 🔄 |
-| sample-data.ts | 100% | Generation 🏗️ |
-| use-toast.ts | 98.95% | Hooks 🪝 |
-| utils.ts | 100% | Utilities 🛠️ |
+| Module          | Coverage | Focus              |
+| --------------- | -------- | ------------------ |
+| reasoner.ts     | 99.31%   | Algorithms ⚙️      |
+| context.tsx     | 98.22%   | State 📊           |
+| serializers.tsx | 95%+     | Transformations 🔄 |
+| sample-data.ts  | 100%     | Generation 🏗️      |
+| use-toast.ts    | 98.95%   | Hooks 🪝           |
+| utils.ts        | 100%     | Utilities 🛠️       |
 
 ## Best Practices
 
@@ -135,9 +139,7 @@ describe('HermiTReasoner', () => {
     const reasoner = new HermiTReasoner(ontology)
     const result = reasoner.reason()
 
-    expect(result.errors).toContainEqual(
-      expect.objectContaining({ type: 'circular' })
-    )
+    expect(result.errors).toContainEqual(expect.objectContaining({ type: 'circular' }))
   })
 })
 ```

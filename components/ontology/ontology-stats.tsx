@@ -48,7 +48,7 @@ export function OntologyStats() {
   const onClickHandler = async () => {
     const success = await copy(ontology.id)
 
-    if(success) {
+    if (success) {
       toast({
         title: 'Copied',
         description: 'Ontology IRI copied to clipboard',
@@ -108,13 +108,10 @@ export function OntologyStats() {
           <div>
             <div className="text-muted-foreground">IRI:</div>
             <div className="font-mono break-all">{ontology.id}</div>
-            <Button 
-              aria-label='Copy IRI' 
-              title='Copy IRI'
-              onClick={onClickHandler}
-              size='sm'
-            >Copy IRI</Button>
-            <Toaster/>
+            <Button aria-label="Copy IRI" title="Copy IRI" onClick={onClickHandler} size="sm">
+              Copy IRI
+            </Button>
+            <Toaster />
           </div>
           {ontology.version && (
             <div>
@@ -125,10 +122,7 @@ export function OntologyStats() {
           {ontology.lastModified && (
             <div>
               <div className="text-muted-foreground">Last Modified:</div>
-              <div
-                className="cursor-default"
-                title={formatAbsoluteTime(ontology.lastModified)}
-              >
+              <div className="cursor-default" title={formatAbsoluteTime(ontology.lastModified)}>
                 {formatRelativeTime(ontology.lastModified)}
               </div>
             </div>

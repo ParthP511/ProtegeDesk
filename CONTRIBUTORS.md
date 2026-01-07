@@ -5,6 +5,7 @@ Thank you to all the people who have contributed to ProtegeDesk!
 ## Core Team
 
 ### Project Maintainers
+
 - **Ale** ([@aadorian](https://github.com/aadorian)) - Project Lead & Core Developer
   - Project architecture and leadership
   - Cursor AI development environment configuration
