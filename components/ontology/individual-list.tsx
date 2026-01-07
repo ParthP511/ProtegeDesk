@@ -78,7 +78,7 @@ export function IndividualList() {
     })
   }, [individuals])
 
-  const filterIndividuals = useMemo(() => {
+  const filteredIndividuals = useMemo(() => {
     if (!searchQuery) {
       return individuals
     }
@@ -89,8 +89,6 @@ export function IndividualList() {
         ind.types.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()))
     )
   }, [individuals, searchQuery])
-
-  const filteredIndividuals = filterIndividuals()
 
   // Group individuals by their primary type (first type)
   const groupedIndividuals = filteredIndividuals.reduce(
