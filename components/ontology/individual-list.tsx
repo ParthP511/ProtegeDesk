@@ -70,13 +70,10 @@ export function IndividualList() {
     [selectClass, selectProperty, selectIndividual]
   )
 
-  // Debug logging when individuals change
-  useEffect(() => {
-    console.log('[IndividualList] Individuals updated:', {
-      count: individuals.length,
-      individuals: individuals.map(ind => ({ id: ind.id, label: ind.label, types: ind.types })),
-    })
-  }, [individuals])
+// Debug logging when individuals change
+useEffect(() => {
+  // console.log removed for production cleanup (issue #120)
+}, [individuals])
 
   const filteredIndividuals = useMemo(() => {
     if (!searchQuery) {

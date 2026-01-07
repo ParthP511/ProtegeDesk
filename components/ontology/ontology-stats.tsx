@@ -23,12 +23,12 @@ export function OntologyStats() {
   // Debug logging when ontology changes
   useEffect(() => {
     if (ontology) {
-      console.log('[OntologyStats] Ontology updated:', {
-        name: ontology.name,
-        classes: classCount,
-        properties: propertyCount,
-        individuals: individualCount,
-      })
+      // console.log('[OntologyStats] Ontology updated:', {
+      //   name: ontology.name,
+      //   classes: classCount,
+      //   properties: propertyCount,
+      //   individuals: individualCount,
+      // })
     }
   }, [ontology, classCount, propertyCount, individualCount])
 
