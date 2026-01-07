@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useOntology } from '@/lib/ontology/context'
 import { Box, Link2, User } from 'lucide-react'
@@ -8,9 +8,11 @@ import { useToast } from '@/hooks/use-toast'
 import { Toaster } from '@/components/ui/toaster'
 import { Button } from '../ui/button'
 import { useCopyToClipboard } from '@/hooks/copy-to-clipboard'
+import { formatRelativeTime, formatAbsoluteTime } from '@/lib/utils'
 
 export function OntologyStats() {
   const { ontology } = useOntology()
+  const [, setUpdateTrigger] = useState(0)
 
   const classCount = ontology?.classes.size ?? 0
   const propertyCount = ontology?.properties.size ?? 0
@@ -29,6 +31,15 @@ export function OntologyStats() {
       })
     }
   }, [ontology, classCount, propertyCount, individualCount])
+
+  // Update relative time display every 10 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setUpdateTrigger(prev => prev + 1)
+    }, 10000) // Update every 10 seconds
+
+    return () => clearInterval(interval)
+  }, [])
 
   if (!ontology) {
     return null
@@ -109,6 +120,17 @@ export function OntologyStats() {
             <div>
               <div className="text-muted-foreground">Version:</div>
               <div className="font-mono">{ontology.version}</div>
+            </div>
+          )}
+          {ontology.lastModified && (
+            <div>
+              <div className="text-muted-foreground">Last Modified:</div>
+              <div
+                className="cursor-default"
+                title={formatAbsoluteTime(ontology.lastModified)}
+              >
+                {formatRelativeTime(ontology.lastModified)}
+              </div>
             </div>
           )}
         </CardContent>

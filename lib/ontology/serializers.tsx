@@ -711,6 +711,7 @@ export function parseOWLXML(content: string): Ontology {
     properties,
     individuals,
     annotations: [],
+    lastModified: new Date(),
   }
 }
 
@@ -833,6 +834,7 @@ export function parseTurtle(content: string): Ontology {
     properties,
     individuals,
     annotations: [],
+    lastModified: new Date(),
   }
 }
 
@@ -991,6 +993,7 @@ export function parseJSONLD(content: string): Ontology {
     properties,
     individuals,
     annotations: [],
+    lastModified: new Date(),
   }
 }
 
