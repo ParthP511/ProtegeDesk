@@ -9,6 +9,10 @@ A next-generation, web-based ontology engineering platform built with TypeScript
 
 ---
 
+![ProtegeDesk](wiki/ProtegeDesk.gif)
+
+---
+
 ## 🚀 Features
 
 ### Core Ontology Engineering
@@ -332,6 +336,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👥 Contributors
 
+- **Ale** - [@aadorian](https://github.com/aadorian) - Project Lead & Core Developer
+  - Project architecture and leadership
+  - Cursor AI development environment configuration
+  - Comprehensive development guidelines documentation
+  - Hydration error fixes and core improvements
+  - Fixed individuals tab runtime error
+  - Removed Vercel Analytics component to prevent script loading errors
+
 - **ParthP511** - [@ParthP511](https://github.com/ParthP511)
   - Comprehensive inline documentation comments
   - Documented reasoning logic in core modules
@@ -349,6 +361,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
   - Enhanced code quality and maintainability
   - Debug logging implementation
   - Type safety improvements with explicit return type annotations
+  - Troubleshooting documentation for common setup issues
 
 - **SIVA** - [@NANI-31](https://github.com/NANI-31)
   - Enhanced graph visualization with zoom controls
@@ -366,6 +379,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - **Anoop-2024si96509** - [@Anoop-2024si96509](https://github.com/Anoop-2024si96509)
   - Inline code comments for complex algorithms
+
+- **Vineeth Wilson** - [@VineethWilson](https://github.com/VineethWilson)
+  - Last modified timestamp tracking for statistics
 
 See [CONTRIBUTORS.md](CONTRIBUTORS.md) for the complete list and detailed contribution information.
 
