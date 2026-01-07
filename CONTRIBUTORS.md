@@ -34,6 +34,7 @@ We appreciate all contributions to this project, big or small!
   - Debug logging implementation (replaced console.log)
   - Explicit return type annotations
   - Type safety improvements with explicit return type annotations
+  - Troubleshooting documentation for common setup issues
   - Repository: https://github.com/charulata871/ProtegeDesk
 
 - **ParthP511** ([@ParthP511](https://github.com/ParthP511))
@@ -47,6 +48,7 @@ We appreciate all contributions to this project, big or small!
   - Copy to clipboard hook implementation
   - ESLint magic numbers rule enforcement
   - Test suite fixes for file parsing issues
+  - Success and failure message notifications for operations
 
 - **mostafakm78** ([@mostafakm78](https://github.com/mostafakm78))
   - Performance optimization with component memoization
@@ -57,6 +59,9 @@ We appreciate all contributions to this project, big or small!
 
 - **Anoop-2024si96509** ([@Anoop-2024si96509](https://github.com/Anoop-2024si96509))
   - Inline code comments for complex algorithms
+
+- **Vineeth Wilson** ([@VineethWilson](https://github.com/VineethWilson))
+  - Last modified timestamp tracking for statistics
 
 ## How to Contribute
 
