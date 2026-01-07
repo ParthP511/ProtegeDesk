@@ -10,6 +10,8 @@ Thank you to all the people who have contributed to ProtegeDesk!
   - Cursor AI development environment configuration
   - Comprehensive development guidelines documentation
   - Hydration error fixes and core improvements
+  - Fixed individuals tab runtime error (incorrect function call in IndividualList component)
+  - Removed Vercel Analytics component to prevent script loading errors
   - Repository: https://github.com/aadorian/ProtegeDesk
 
 ## Contributors
